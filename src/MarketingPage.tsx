@@ -245,26 +245,41 @@ function CardsSection({
           </div>
         )}
         <div className={cx("g4mp-cards__grid", `g4mp-cards__grid--${count}`)}>
-          {items.map((item, i) => (
-            <div key={i} className="g4mp-card">
-              {(item.file_url || item.mobile_file_url) && (
-                <ResponsiveImg
-                  desktopUrl={item.file_url}
-                  mobileUrl={item.mobile_file_url}
-                  width={W.GRID}
-                  alt={item.title ?? `Card ${i + 1}`}
-                  className="g4mp-card__img"
-                />
-              )}
-              {item.title && <h3 className="g4mp-card__title">{item.title}</h3>}
-              {item.body && <p className="g4mp-card__body">{item.body}</p>}
-              {item.cta && (
-                <div className="g4mp-card__cta">
-                  <CtaButton cta={item.cta} onCtaClick={onCtaClick} variant="primary" />
-                </div>
-              )}
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const hasImg = !!(item.file_url || item.mobile_file_url);
+            const clickable = !!item.cta;
+            const inner = (
+              <>
+                {hasImg ? (
+                  <ResponsiveImg
+                    desktopUrl={item.file_url}
+                    mobileUrl={item.mobile_file_url}
+                    width={W.GRID}
+                    alt={item.title ?? `Card ${i + 1}`}
+                    className="g4mp-card__img"
+                  />
+                ) : (
+                  <span className="g4mp-card__fallback" />
+                )}
+                {(item.title || item.body) && (
+                  <span className="g4mp-card__overlay">
+                    {item.title && <span className="g4mp-card__title">{item.title}</span>}
+                    {item.body && <span className="g4mp-card__sub">{item.body}</span>}
+                  </span>
+                )}
+              </>
+            );
+            // The whole tile is the click target — no separate button.
+            return clickable ? (
+              <button key={i} type="button" className="g4mp-card" onClick={() => onCtaClick?.(item.cta!)}>
+                {inner}
+              </button>
+            ) : (
+              <div key={i} className="g4mp-card">
+                {inner}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

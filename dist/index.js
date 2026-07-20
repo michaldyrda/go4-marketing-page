@@ -86,16 +86,20 @@ var MARKETING_CSS = `
 .g4mp-cta__title { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 8px; }
 .g4mp-cta__body { color: rgba(255,255,255,0.85); white-space: pre-line; }
 
-/* Cards */
+/* Cards \u2014 the whole tile is the click target (image + overlaid title), no button. */
 .g4mp-cards { background: var(--g4mp-surface); }
 .g4mp-cards__head { max-width: 620px; margin: 0 auto 32px; text-align: center; }
 .g4mp-cards__head .g4mp-title { margin-bottom: 12px; }
-.g4mp-cards__grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
-.g4mp-card { display: flex; flex-direction: column; }
-.g4mp-card__img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 12px; margin-bottom: 16px; }
-.g4mp-card__title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
-.g4mp-card__body { font-size: 14px; line-height: 1.5; color: var(--g4mp-muted); margin-bottom: 14px; }
-.g4mp-card__cta { margin-top: auto; }
+.g4mp-cards__grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+.g4mp-card { position: relative; display: block; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 12px; background: var(--g4mp-ink); }
+button.g4mp-card { appearance: none; -webkit-appearance: none; border: 0; padding: 0; margin: 0; font: inherit; text-align: left; color: inherit; cursor: pointer; }
+.g4mp-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.45s ease; }
+.g4mp-card__fallback { position: absolute; inset: 0; background: linear-gradient(160deg, #2a2e36, #0a0a0a); }
+button.g4mp-card:hover .g4mp-card__img { transform: scale(1.04); }
+button.g4mp-card:focus-visible { outline: 2px solid var(--g4mp-ink); outline-offset: 2px; }
+.g4mp-card__overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 18px 16px; background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0.12) 62%, transparent); }
+.g4mp-card__title { display: block; color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.12; }
+.g4mp-card__sub { display: block; color: rgba(255,255,255,0.82); font-size: 14px; line-height: 1.4; margin-top: 5px; }
 
 /* \u2500\u2500 Desktop (real wide viewport, unless mobile preview is forced) \u2500\u2500 */
 @media (min-width: 768px) {
@@ -111,6 +115,8 @@ var MARKETING_CSS = `
   .g4mp:not(.g4mp--mobile) .g4mp-cards__grid--2 { grid-template-columns: repeat(2, 1fr); max-width: 720px; margin-left: auto; margin-right: auto; }
   .g4mp:not(.g4mp--mobile) .g4mp-cards__grid--3 { grid-template-columns: repeat(3, 1fr); }
   .g4mp:not(.g4mp--mobile) .g4mp-cards__grid--4 { grid-template-columns: repeat(4, 1fr); }
+  .g4mp:not(.g4mp--mobile) .g4mp-card__title { font-size: 24px; }
+  .g4mp:not(.g4mp--mobile) .g4mp-card__overlay { padding: 26px 20px 18px; }
 }
 `;
 
@@ -132,7 +138,7 @@ function safeImgSrc(url) {
 }
 
 // src/MarketingPage.tsx
-import { jsx, jsxs } from "react/jsx-runtime";
+import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 var W = { HERO: 960, STORY: 600, GRID: 400 };
 var ForceMobileContext = createContext(false);
 var TransformContext = createContext((url) => url);
@@ -288,21 +294,27 @@ function CardsSection({
       config.title && /* @__PURE__ */ jsx("h2", { className: "g4mp-title", children: config.title }),
       config.body && /* @__PURE__ */ jsx("p", { className: "g4mp-body", children: config.body })
     ] }),
-    /* @__PURE__ */ jsx("div", { className: cx("g4mp-cards__grid", `g4mp-cards__grid--${count}`), children: items.map((item, i) => /* @__PURE__ */ jsxs("div", { className: "g4mp-card", children: [
-      (item.file_url || item.mobile_file_url) && /* @__PURE__ */ jsx(
-        ResponsiveImg,
-        {
-          desktopUrl: item.file_url,
-          mobileUrl: item.mobile_file_url,
-          width: W.GRID,
-          alt: item.title ?? `Card ${i + 1}`,
-          className: "g4mp-card__img"
-        }
-      ),
-      item.title && /* @__PURE__ */ jsx("h3", { className: "g4mp-card__title", children: item.title }),
-      item.body && /* @__PURE__ */ jsx("p", { className: "g4mp-card__body", children: item.body }),
-      item.cta && /* @__PURE__ */ jsx("div", { className: "g4mp-card__cta", children: /* @__PURE__ */ jsx(CtaButton, { cta: item.cta, onCtaClick, variant: "primary" }) })
-    ] }, i)) })
+    /* @__PURE__ */ jsx("div", { className: cx("g4mp-cards__grid", `g4mp-cards__grid--${count}`), children: items.map((item, i) => {
+      const hasImg = !!(item.file_url || item.mobile_file_url);
+      const clickable = !!item.cta;
+      const inner = /* @__PURE__ */ jsxs(Fragment, { children: [
+        hasImg ? /* @__PURE__ */ jsx(
+          ResponsiveImg,
+          {
+            desktopUrl: item.file_url,
+            mobileUrl: item.mobile_file_url,
+            width: W.GRID,
+            alt: item.title ?? `Card ${i + 1}`,
+            className: "g4mp-card__img"
+          }
+        ) : /* @__PURE__ */ jsx("span", { className: "g4mp-card__fallback" }),
+        (item.title || item.body) && /* @__PURE__ */ jsxs("span", { className: "g4mp-card__overlay", children: [
+          item.title && /* @__PURE__ */ jsx("span", { className: "g4mp-card__title", children: item.title }),
+          item.body && /* @__PURE__ */ jsx("span", { className: "g4mp-card__sub", children: item.body })
+        ] })
+      ] });
+      return clickable ? /* @__PURE__ */ jsx("button", { type: "button", className: "g4mp-card", onClick: () => onCtaClick?.(item.cta), children: inner }, i) : /* @__PURE__ */ jsx("div", { className: "g4mp-card", children: inner }, i);
+    }) })
   ] }) });
 }
 function Section({

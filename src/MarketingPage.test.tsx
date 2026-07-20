@@ -32,7 +32,7 @@ describe("MarketingPage", () => {
     expect(screen.queryByText("Nope")).toBeNull();
   });
 
-  it("renders a cards section with one card per item and a per-card CTA", () => {
+  it("renders a card per item; a card with a CTA is itself the click target (no button)", () => {
     const onCtaClick = vi.fn();
     render(
       <MarketingPage
@@ -43,8 +43,8 @@ describe("MarketingPage", () => {
             config: {
               title: "Shop the icons",
               items: [
-                { title: "BONEO Hoodie", body: "Heavyweight fleece.", file_url: "https://cdn/x.jpg", cta: { label: "View product", type: "order_form" } },
-                { title: "BARELL Pants", body: "Relaxed fit." },
+                { title: "BONEO Hoodie", body: "Heavyweight fleece.", file_url: "https://cdn/x.jpg", cta: { type: "collection", collection_id: "col-9" } },
+                { title: "BARELL Pants", body: "Relaxed fit." }, // no CTA → not clickable
               ],
             },
           }),
@@ -53,8 +53,13 @@ describe("MarketingPage", () => {
     );
     expect(screen.getByText("BONEO Hoodie")).toBeInTheDocument();
     expect(screen.getByText("BARELL Pants")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "View product" }));
-    expect(onCtaClick).toHaveBeenCalledWith(expect.objectContaining({ label: "View product" }));
+    // Only the card with a CTA is a button; the whole tile is the target.
+    const buttons = screen.getAllByRole("button");
+    expect(buttons).toHaveLength(1);
+    fireEvent.click(buttons[0]);
+    expect(onCtaClick).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "collection", collection_id: "col-9" }),
+    );
   });
 
   it("passes a collection CTA through onCtaClick untouched (host navigates)", () => {
