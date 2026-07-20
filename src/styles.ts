@@ -103,7 +103,7 @@ button.g4mp-card { appearance: none; -webkit-appearance: none; border: 0; paddin
 .g4mp-card__fallback { position: absolute; inset: 0; background: linear-gradient(160deg, #2a2e36, #0a0a0a); }
 button.g4mp-card:hover .g4mp-card__img { transform: scale(1.04); }
 button.g4mp-card:focus-visible { outline: 2px solid var(--g4mp-ink); outline-offset: 2px; }
-.g4mp-card__overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 18px 16px; background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0.12) 62%, transparent); }
+.g4mp-card__overlay { position: absolute; left: 0; right: 0; bottom: 0; height: 82px; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 16px 14px; background: rgba(0, 0, 0, 0.55); }
 .g4mp-card__title { display: block; color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.12; }
 .g4mp-card__sub { display: block; color: rgba(255,255,255,0.82); font-size: 14px; line-height: 1.4; margin-top: 5px; }
 
@@ -122,6 +122,6 @@ button.g4mp-card:focus-visible { outline: 2px solid var(--g4mp-ink); outline-off
   .g4mp:not(.g4mp--mobile) .g4mp-cards__grid--3 { grid-template-columns: repeat(3, 1fr); }
   .g4mp:not(.g4mp--mobile) .g4mp-cards__grid--4 { grid-template-columns: repeat(4, 1fr); }
   .g4mp:not(.g4mp--mobile) .g4mp-card__title { font-size: 24px; }
-  .g4mp:not(.g4mp--mobile) .g4mp-card__overlay { padding: 26px 20px 18px; }
+  .g4mp:not(.g4mp--mobile) .g4mp-card__overlay { height: 94px; padding: 0 20px 16px; }
 }
 `;
