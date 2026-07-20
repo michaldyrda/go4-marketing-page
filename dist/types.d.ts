@@ -5,12 +5,15 @@
  * editor, the B2B portal — can pass its own richer types straight in. The
  * package never imports either app's design system or domain types.
  */
-export type MarketingCtaType = "order_form" | "external_link";
+export type MarketingCtaType = "order_form" | "external_link" | "collection";
 export interface MarketingCta {
     label?: string | null;
     type?: MarketingCtaType | string | null;
     /** Only meaningful for external_link. Sanitized before use. */
     url?: string | null;
+    /** Only meaningful for type "collection": the target collection UUID.
+     *  The renderer does not navigate — the host reads this in onCtaClick. */
+    collection_id?: string | null;
 }
 export interface MarketingMediaItem {
     role?: string | null;

@@ -57,6 +57,28 @@ describe("MarketingPage", () => {
     expect(onCtaClick).toHaveBeenCalledWith(expect.objectContaining({ label: "View product" }));
   });
 
+  it("passes a collection CTA through onCtaClick untouched (host navigates)", () => {
+    const onCtaClick = vi.fn();
+    render(
+      <MarketingPage
+        onCtaClick={onCtaClick}
+        sections={[
+          section({
+            type: "cta",
+            config: {
+              title: "Explore FW26",
+              cta: { label: "See the collection", type: "collection", collection_id: "col-123" },
+            },
+          }),
+        ]}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "See the collection" }));
+    expect(onCtaClick).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "collection", collection_id: "col-123" }),
+    );
+  });
+
   it("empty cards section renders nothing", () => {
     const { container } = render(
       <MarketingPage sections={[section({ type: "cards", config: { title: "x", items: [] } })]} />,
