@@ -94,7 +94,7 @@ var MARKETING_CSS = `
 .g4mp-cards__head .g4mp-title { margin-bottom: 12px; }
 .g4mp-cards__head .g4mp-subtitle { margin-bottom: 12px; }
 .g4mp-cards__grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-.g4mp-card { position: relative; display: block; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 12px; background: var(--g4mp-ink); }
+.g4mp-card { position: relative; display: block; width: 100%; aspect-ratio: 2 / 3; overflow: hidden; border-radius: 12px; background: var(--g4mp-ink); }
 button.g4mp-card { appearance: none; -webkit-appearance: none; border: 0; padding: 0; margin: 0; font: inherit; text-align: left; color: inherit; cursor: pointer; }
 .g4mp-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.45s ease; }
 .g4mp-card__fallback { position: absolute; inset: 0; background: linear-gradient(160deg, #2a2e36, #0a0a0a); }
