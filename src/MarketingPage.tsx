@@ -145,9 +145,10 @@ function GridSection({ config }: { config: MarketingSectionConfig }) {
   return (
     <section className="g4mp-section g4mp-grid">
       <div className="g4mp-inner">
-        {(config.title || config.body) && (
+        {(config.title || config.subtitle || config.body) && (
           <div className="g4mp-grid__head">
             {config.title && <h2 className="g4mp-title">{config.title}</h2>}
+            {config.subtitle && <p className="g4mp-subtitle">{config.subtitle}</p>}
             {config.body && <p className="g4mp-body">{config.body}</p>}
           </div>
         )}
@@ -217,6 +218,7 @@ function CtaSection({
       <div className="g4mp-inner g4mp-cta__inner">
         <div>
           {config.title && <h2 className="g4mp-cta__title">{config.title}</h2>}
+          {config.subtitle && <p className="g4mp-cta__sub">{config.subtitle}</p>}
           {config.body && <p className="g4mp-cta__body">{config.body}</p>}
         </div>
         {config.cta && <CtaButton cta={config.cta} onCtaClick={onCtaClick} />}
@@ -238,9 +240,10 @@ function CardsSection({
   return (
     <section className="g4mp-section g4mp-cards">
       <div className="g4mp-inner">
-        {(config.title || config.body) && (
+        {(config.title || config.subtitle || config.body) && (
           <div className="g4mp-cards__head">
             {config.title && <h2 className="g4mp-title">{config.title}</h2>}
+            {config.subtitle && <p className="g4mp-subtitle">{config.subtitle}</p>}
             {config.body && <p className="g4mp-body">{config.body}</p>}
           </div>
         )}

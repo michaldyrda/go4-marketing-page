@@ -29,10 +29,10 @@ export const MARKETING_CSS = `
 
 .g4mp-section { padding: 48px 24px; }
 .g4mp-inner { max-width: 1120px; margin: 0 auto; }
-.g4mp-eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 500; }
+.g4mp-eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
 .g4mp-title { font-size: 30px; line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; }
-.g4mp-subtitle { font-size: 17px; color: var(--g4mp-muted); }
-.g4mp-body { font-size: 15px; line-height: 1.6; color: var(--g4mp-muted); white-space: pre-line; }
+.g4mp-subtitle { font-size: 17px; font-weight: 700; color: var(--g4mp-ink); }
+.g4mp-body { font-size: 15px; line-height: 1.6; color: var(--g4mp-ink); white-space: pre-line; }
 
 /* Button */
 .g4mp-btn {
@@ -68,6 +68,7 @@ export const MARKETING_CSS = `
 .g4mp-grid { background: var(--g4mp-surface-2); }
 .g4mp-grid__head { max-width: 620px; margin: 0 auto 32px; text-align: center; }
 .g4mp-grid__head .g4mp-title { margin-bottom: 12px; }
+.g4mp-grid__head .g4mp-subtitle { margin-bottom: 12px; }
 .g4mp-grid__items { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 .g4mp-grid__cell { aspect-ratio: 1 / 1; overflow: hidden; border-radius: 12px; }
 .g4mp-grid__cell img { width: 100%; height: 100%; object-fit: cover; }
@@ -90,12 +91,14 @@ export const MARKETING_CSS = `
 .g4mp-cta { background: var(--g4mp-ink); color: var(--g4mp-ondark); }
 .g4mp-cta__inner { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
 .g4mp-cta__title { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 8px; }
+.g4mp-cta__sub { font-weight: 700; color: rgba(255,255,255,0.85); margin-bottom: 6px; }
 .g4mp-cta__body { color: rgba(255,255,255,0.85); white-space: pre-line; }
 
 /* Cards — the whole tile is the click target (image + overlaid title), no button. */
 .g4mp-cards { background: var(--g4mp-surface); }
 .g4mp-cards__head { max-width: 620px; margin: 0 auto 32px; text-align: center; }
 .g4mp-cards__head .g4mp-title { margin-bottom: 12px; }
+.g4mp-cards__head .g4mp-subtitle { margin-bottom: 12px; }
 .g4mp-cards__grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
 .g4mp-card { position: relative; display: block; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 12px; background: var(--g4mp-ink); }
 button.g4mp-card { appearance: none; -webkit-appearance: none; border: 0; padding: 0; margin: 0; font: inherit; text-align: left; color: inherit; cursor: pointer; }

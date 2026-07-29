@@ -84,6 +84,30 @@ describe("MarketingPage", () => {
     );
   });
 
+  it("subtitle wchodzi w każdej sekcji, która ma go w edytorze", () => {
+    // Regresja 2026-07-29: team/materials/cards/cta przyjmowały subtitle
+    // w panelu i gubiły go przy renderze — klient nigdy go nie widział.
+    render(
+      <MarketingPage
+        sections={[
+          section({ type: "story", order_index: 1, config: { subtitle: "Sub story" } }),
+          section({ type: "team", order_index: 2, config: { subtitle: "Sub team" } }),
+          section({ type: "materials", order_index: 3, config: { subtitle: "Sub materials" } }),
+          section({ type: "text_block", order_index: 4, config: { subtitle: "Sub text" } }),
+          section({ type: "cta", order_index: 5, config: { subtitle: "Sub cta" } }),
+          section({
+            type: "cards",
+            order_index: 6,
+            config: { subtitle: "Sub cards", items: [{ title: "Card" }] },
+          }),
+        ]}
+      />,
+    );
+    for (const t of ["Sub story", "Sub team", "Sub materials", "Sub text", "Sub cta", "Sub cards"]) {
+      expect(screen.getByText(t)).toBeTruthy();
+    }
+  });
+
   it("empty cards section renders nothing", () => {
     const { container } = render(
       <MarketingPage sections={[section({ type: "cards", config: { title: "x", items: [] } })]} />,
