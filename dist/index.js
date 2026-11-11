@@ -1,3 +1,5 @@
+"use client";
+
 // src/MarketingPage.tsx
 import { Fragment as Fragment7 } from "react";
 
@@ -1673,7 +1675,6 @@ a.g4mp-btn { text-decoration: none; }
 }
 
 /* \u2550\u2550 Catalog 0.5.0 \u2550\u2550 */
-   \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
 .g4mp ul, .g4mp ol { margin: 0; padding: 0; list-style: none; }
 .g4mp blockquote, .g4mp figure { margin: 0; }
 .g4mp-title { text-wrap: balance; }
@@ -2282,7 +2283,7 @@ function sectionsToMarkdown(sections, opts = {}) {
 }
 
 // src/cssHash.ts
-var MARKETING_CSS_SHA256 = "sha256-tq07FBjLq/2tNGgQ4FzqvJj+46X3LU43zqNEFXckuRo=";
+var MARKETING_CSS_SHA256 = "sha256-hmt2+h9wJHcL9MuS5Ky1Qad3bpk5E266BOauvJ9BxVg=";
 export {
   CATALOG_GROUPS,
   CATALOG_VERSION,

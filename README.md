@@ -174,6 +174,16 @@ load the file `@go4/marketing-page/styles.css`. `npm run build` regenerates both
 | `renderInsertSlot` | `(index) => ReactNode` | Editor "+" between sections. |
 | `className` | `string` | Extra class on the root. |
 
+## Entries
+
+| Import | What | React |
+|---|---|---|
+| `@go4/marketing-page` | `MarketingPage` (marked `"use client"`) + everything from `./data` | yes |
+| `@go4/marketing-page/data` | `normalizeSection`, `SECTION_CATALOG`, rich text helpers, `sectionsToMarkdown`, `buildStructuredData`, `jsonLdScriptContent`, URL guards, `MARKETING_CSS` | **no** — safe in server code (Next server components and routes), Deno, plain Node |
+| `@go4/marketing-page/styles.css` | the stylesheet as a file | — |
+
+Build gate (`scripts/check-dist.mjs`): `dist/data.js` must not import React and `dist/index.js` must start with `"use client"`. Test `src/entries.test.ts` checks that the stylesheet contains rules only (text outside a rule breaks CSS minifiers and swallows the next rule).
+
 ## Security
 
 - Content is always escaped React children. The only `dangerouslySetInnerHTML` is

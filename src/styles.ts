@@ -139,7 +139,6 @@ a.g4mp-btn { text-decoration: none; }
 }
 
 /* ══ Catalog 0.5.0 ══ */
-   ══════════════════════════════════════════════════════════════════════════ */
 .g4mp ul, .g4mp ol { margin: 0; padding: 0; list-style: none; }
 .g4mp blockquote, .g4mp figure { margin: 0; }
 .g4mp-title { text-wrap: balance; }
