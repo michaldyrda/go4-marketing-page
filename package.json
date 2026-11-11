@@ -1,6 +1,6 @@
 {
   "name": "@go4/marketing-page",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Self-contained renderer for go4 landing pages. Framework-agnostic React, own scoped styles, zero design-system dependency. Shared by the admin app, the B2B portal and the public brand page.",
   "license": "UNLICENSED",
   "type": "module",
