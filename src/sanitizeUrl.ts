@@ -52,3 +52,21 @@ export function safeDimension(n?: number | null): number | undefined {
     ? Math.round(n)
     : undefined;
 }
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Library / collection / product identifiers are UUIDs — anything else is dropped. */
+export function isUuid(v: unknown): v is string {
+  return typeof v === "string" && UUID.test(v);
+}
+
+/**
+ * Address of an `external` link target: absolute http(s) without credentials,
+ * strict `mailto:` or `tel:` (same rules as `safeHref`). Relative paths are not
+ * external. Undefined otherwise.
+ */
+export function safeExternalUrl(url?: string | null): string | undefined {
+  const href = safeHref(url);
+  if (!href) return undefined;
+  return /^(https?:\/\/|mailto:|tel:)/i.test(href) ? href : undefined;
+}

@@ -1,0 +1,490 @@
+{
+ "_comment": "Galeria komponentów: wszystkie 15 typów katalogu (hero w dwóch wariantach, gallery i quotes w dwóch układach) po kolei. Treść jawnie przykładowa i neutralna; zdjęcia i logotypy to szare prostokąty (_placeholder). Pola z prefiksem _ są tylko dla makiety.",
+ "name": "Component gallery",
+ "slug": "component-gallery",
+ "locale": "en",
+ "sections": [
+  {
+   "type": "hero",
+   "variant": "cover",
+   "config": {
+    "eyebrow": "Sample eyebrow",
+    "title": "Sample page title",
+    "body": "Sample hero text. One or two sentences that introduce the page.",
+    "media": null,
+    "buttons": [
+     {
+      "label": "Primary button",
+      "link": {
+       "kind": "catalog"
+      }
+     },
+     {
+      "label": "Second button",
+      "link": {
+       "kind": "catalog"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "type": "hero",
+   "variant": "split",
+   "config": {
+    "eyebrow": "Sample eyebrow",
+    "title": "Sample title on a light background",
+    "body": "Sample hero text next to a portrait image.",
+    "media": {
+     "_placeholder": true,
+     "alt": "Sample portrait image"
+    },
+    "buttons": [
+     {
+      "label": "Primary button",
+      "link": {
+       "kind": "catalog"
+      }
+     },
+     {
+      "label": "Second button",
+      "link": {
+       "kind": "catalog"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "type": "text_block",
+   "config": {
+    "title": "Sample text block",
+    "subtitle": "Sample subtitle",
+    "body": "Sample paragraph. Line breaks typed in the editor are kept.\n\nSecond sample paragraph.",
+    "buttons": [
+     {
+      "label": "Sample button",
+      "link": {
+       "kind": "catalog"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "type": "story",
+   "config": {
+    "title": "Sample story",
+    "subtitle": "Sample subtitle",
+    "body": "Sample text next to one image. The image can sit on the left or on the right.",
+    "image_side": "right",
+    "media": {
+     "_placeholder": true,
+     "alt": "Sample image"
+    },
+    "buttons": [
+     {
+      "label": "Sample button",
+      "link": {
+       "kind": "catalog"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "type": "gallery",
+   "config": {
+    "title": "Sample gallery",
+    "body": "Sample text above the images. Five or more images form a grid of four.",
+    "items": [
+     {
+      "_placeholder": true,
+      "alt": "Sample image 1",
+      "caption": "Sample caption 1",
+      "subcaption": "Sample subcaption"
+     },
+     {
+      "_placeholder": true,
+      "alt": "Sample image 2",
+      "caption": "Sample caption 2",
+      "subcaption": "Sample subcaption"
+     },
+     {
+      "_placeholder": true,
+      "alt": "Sample image 3",
+      "caption": "Sample caption 3",
+      "subcaption": "Sample subcaption"
+     },
+     {
+      "_placeholder": true,
+      "alt": "Sample image 4",
+      "caption": "Sample caption 4",
+      "subcaption": "Sample subcaption"
+     },
+     {
+      "_placeholder": true,
+      "alt": "Sample image 5",
+      "caption": "Sample caption 5",
+      "subcaption": "Sample subcaption"
+     },
+     {
+      "_placeholder": true,
+      "alt": "Sample image 6",
+      "caption": "Sample caption 6",
+      "subcaption": "Sample subcaption"
+     }
+    ]
+   }
+  },
+  {
+   "type": "gallery",
+   "config": {
+    "title": "Sample gallery with one image",
+    "body": "",
+    "items": [
+     {
+      "_placeholder": true,
+      "alt": "Sample wide image"
+     }
+    ]
+   }
+  },
+  {
+   "type": "video",
+   "config": {
+    "title": "Sample video title",
+    "caption": "Sample video caption.",
+    "media": {
+     "media_type": "video",
+     "file_url": null,
+     "poster": {
+      "_placeholder": true,
+      "alt": "Sample video poster"
+     }
+    }
+   }
+  },
+  {
+   "type": "cards",
+   "config": {
+    "title": "Sample cards",
+    "subtitle": "",
+    "body": "Sample text above the cards. Each card is a link.",
+    "items": [
+     {
+      "title": "Card title 1",
+      "body": "Sample card caption",
+      "media": null,
+      "link": {
+       "kind": "catalog"
+      }
+     },
+     {
+      "title": "Card title 2",
+      "body": "Sample card caption",
+      "media": null,
+      "link": {
+       "kind": "catalog"
+      }
+     },
+     {
+      "title": "Card title 3",
+      "body": "Sample card caption",
+      "media": null,
+      "link": {
+       "kind": "catalog"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "type": "collections",
+   "config": {
+    "title": "Sample collections",
+    "mode": "selected",
+    "show_shipping": true,
+    "items": [
+     {
+      "collection_id": "sample-1",
+      "_name": "Collection name 1",
+      "_season": "Season",
+      "_styles": 12,
+      "_shipping": "Month Year",
+      "_cover_url": null
+     },
+     {
+      "collection_id": "sample-2",
+      "_name": "Collection name 2",
+      "_season": "Season",
+      "_styles": 12,
+      "_shipping": "Month Year",
+      "_cover_url": null
+     },
+     {
+      "collection_id": "sample-3",
+      "_name": "Collection name 3",
+      "_season": "Season",
+      "_styles": 12,
+      "_shipping": null,
+      "_cover_url": null
+     },
+     {
+      "collection_id": "sample-4",
+      "_name": "Collection name 4",
+      "_season": "Season",
+      "_styles": 12,
+      "_shipping": null,
+      "_cover_url": null
+     }
+    ]
+   }
+  },
+  {
+   "type": "products",
+   "config": {
+    "title": "Sample products",
+    "subtitle": "Sample subtitle",
+    "mode": "selected",
+    "items": [
+     {
+      "product_id": "sample-1",
+      "_name": "Product name 1",
+      "_category": "Category",
+      "_image": {
+       "_placeholder": true,
+       "alt": "Product name 1"
+      }
+     },
+     {
+      "product_id": "sample-2",
+      "_name": "Product name 2",
+      "_category": "Category",
+      "_image": {
+       "_placeholder": true,
+       "alt": "Product name 2"
+      }
+     },
+     {
+      "product_id": "sample-3",
+      "_name": "Product name 3",
+      "_category": "Category",
+      "_image": {
+       "_placeholder": true,
+       "alt": "Product name 3"
+      }
+     },
+     {
+      "product_id": "sample-4",
+      "_name": "Product name 4",
+      "_category": "Category",
+      "_image": {
+       "_placeholder": true,
+       "alt": "Product name 4"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "type": "facts",
+   "config": {
+    "items": [
+     {
+      "value": "00",
+      "label": "sample fact label"
+     },
+     {
+      "value": "00",
+      "label": "sample fact label"
+     },
+     {
+      "value": "00",
+      "label": "sample fact label"
+     },
+     {
+      "value": "00",
+      "label": "sample fact label"
+     }
+    ]
+   }
+  },
+  {
+   "type": "features",
+   "config": {
+    "title": "Sample features",
+    "items": [
+     {
+      "title": "Feature title 1",
+      "body": "Sample feature text. One or two sentences.",
+      "media": null
+     },
+     {
+      "title": "Feature title 2",
+      "body": "Sample feature text. One or two sentences.",
+      "media": null
+     },
+     {
+      "title": "Feature title 3",
+      "body": "Sample feature text. One or two sentences.",
+      "media": null
+     }
+    ]
+   }
+  },
+  {
+   "type": "quotes",
+   "config": {
+    "title": "",
+    "items": [
+     {
+      "text": "Sample quote text. A single quote is shown large and centered.",
+      "author": "Author name",
+      "role": "Role, Boutique name",
+      "avatar": {
+       "_placeholder": true,
+       "alt": "Author name"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "type": "quotes",
+   "config": {
+    "title": "Sample quotes",
+    "items": [
+     {
+      "text": "Sample quote text. Two or three quotes are shown as cards in a row.",
+      "author": "Author name",
+      "role": "Role, Boutique name",
+      "avatar": {
+       "_placeholder": true,
+       "alt": "Author name"
+      }
+     },
+     {
+      "text": "Sample quote text. A longer sample quote that runs over several lines to show that cards in one row keep the same height.",
+      "author": "Author name",
+      "role": "Role, Boutique name",
+      "avatar": {
+       "_placeholder": true,
+       "alt": "Author name"
+      }
+     },
+     {
+      "text": "Sample quote text. Two or three quotes are shown as cards in a row.",
+      "author": "Author name",
+      "role": "Role, Boutique name",
+      "avatar": null
+     }
+    ]
+   }
+  },
+  {
+   "type": "logos",
+   "config": {
+    "title": "Sample logos title",
+    "items": [
+     {
+      "name": "Boutique name 1",
+      "media": {
+       "_placeholder": true,
+       "alt": "Boutique name 1"
+      }
+     },
+     {
+      "name": "Boutique name 2",
+      "media": {
+       "_placeholder": true,
+       "alt": "Boutique name 2"
+      }
+     },
+     {
+      "name": "Boutique name 3",
+      "media": {
+       "_placeholder": true,
+       "alt": "Boutique name 3"
+      }
+     },
+     {
+      "name": "Boutique name 4",
+      "media": {
+       "_placeholder": true,
+       "alt": "Boutique name 4"
+      }
+     },
+     {
+      "name": "Boutique name 5",
+      "media": {
+       "_placeholder": true,
+       "alt": "Boutique name 5"
+      }
+     },
+     {
+      "name": "Boutique name 6",
+      "media": {
+       "_placeholder": true,
+       "alt": "Boutique name 6"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "type": "faq",
+   "config": {
+    "title": "Sample questions",
+    "items": [
+     {
+      "question": "Sample question 1?",
+      "answer": "Sample answer. One or two sentences."
+     },
+     {
+      "question": "Sample question 2?",
+      "answer": "Sample answer. One or two sentences."
+     },
+     {
+      "question": "Sample question 3?",
+      "answer": "Sample answer. One or two sentences."
+     }
+    ]
+   }
+  },
+  {
+   "type": "contact",
+   "config": {
+    "title": "Sample contact",
+    "body": "Sample text next to the brand details. Only the details the brand has filled in are shown.",
+    "_brand": {
+     "address": "Sample Street 1\n00-000 Sample City",
+     "email": "hello@example.com",
+     "website": "example.com",
+     "instagram": "@brandname"
+    }
+   }
+  },
+  {
+   "type": "cta",
+   "config": {
+    "title": "Sample call to action",
+    "body": "Sample text in the black band.",
+    "buttons": [
+     {
+      "label": "Primary button",
+      "link": {
+       "kind": "catalog"
+      }
+     },
+     {
+      "label": "Second button",
+      "link": {
+       "kind": "catalog"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -13,3 +13,11 @@ export declare function safeHref(url?: string | null): string | undefined;
 export declare function safeImgSrc(url?: string | null): string | undefined;
 /** Positive integer pixel size, or undefined. */
 export declare function safeDimension(n?: number | null): number | undefined;
+/** Library / collection / product identifiers are UUIDs — anything else is dropped. */
+export declare function isUuid(v: unknown): v is string;
+/**
+ * Address of an `external` link target: absolute http(s) without credentials,
+ * strict `mailto:` or `tel:` (same rules as `safeHref`). Relative paths are not
+ * external. Undefined otherwise.
+ */
+export declare function safeExternalUrl(url?: string | null): string | undefined;
