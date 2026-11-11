@@ -9,13 +9,9 @@ export declare const DEFAULT_LABELS: {
     sections: Record<LandingSectionType, string>;
     /** Field names — the missing field in the empty state. */
     fields: {
-        eyebrow: string;
         title: string;
-        subtitle: string;
-        body: string;
         media: string;
         button: string;
-        alt: string;
     };
     /** Collection tile: `{date}` is the shipping text served by the host. */
     shipping: string;

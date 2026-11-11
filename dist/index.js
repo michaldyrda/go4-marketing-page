@@ -23,13 +23,9 @@ var DEFAULT_LABELS = {
   },
   /** Field names — the missing field in the empty state. */
   fields: {
-    eyebrow: "Eyebrow",
     title: "Title",
-    subtitle: "Subtitle",
-    body: "Text",
     media: "Image",
-    button: "Button",
-    alt: "Alt text"
+    button: "Button"
   },
   /** Collection tile: `{date}` is the shipping text served by the host. */
   shipping: "Shipping: from {date}",

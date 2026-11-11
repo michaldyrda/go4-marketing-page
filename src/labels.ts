@@ -26,13 +26,9 @@ export const DEFAULT_LABELS = {
   } as Record<LandingSectionType, string>,
   /** Field names — the missing field in the empty state. */
   fields: {
-    eyebrow: "Eyebrow",
     title: "Title",
-    subtitle: "Subtitle",
-    body: "Text",
     media: "Image",
     button: "Button",
-    alt: "Alt text",
   },
   /** Collection tile: `{date}` is the shipping text served by the host. */
   shipping: "Shipping: from {date}",
