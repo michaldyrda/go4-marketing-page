@@ -96,8 +96,16 @@ function safeHref(url) {
 function safeImgSrc(url) {
   if (!url) return void 0;
   const t = url.trim();
-  if (/^https?:\/\//i.test(t)) return t;
-  if (/^data:image\/(png|jpe?g|gif|webp|avif);/i.test(t)) return t;
+  if (/^data:image\/(png|jpe?g|gif|webp|avif);base64,[A-Za-z0-9+/=]+$/i.test(t)) return t;
+  if (UNSAFE_CHARS.test(t)) return void 0;
+  if (/^https?:\/\//i.test(t)) {
+    try {
+      const u = new URL(t);
+      return u.username || u.password ? void 0 : t;
+    } catch {
+      return void 0;
+    }
+  }
   if (t.startsWith("/") && !t.startsWith("//")) return t;
   return void 0;
 }
@@ -2116,23 +2124,23 @@ function jsonLdScriptContent(data) {
 }
 
 // src/markdown.ts
-function mdText(s) {
-  return s.replace(/[\\`*_[\]<>]/g, (c) => `\\${c}`).split("\n").map((line) => line.replace(/^(\s*)([#+-]|\d+\.)(?=\s|$)/, "$1\\$2")).join("\n");
-}
+var mdInline = (s) => s.replace(/[\\`*_[\]<>&]/g, (c) => `\\${c}`);
+var mdLineStarts = (s) => s.split("\n").map((line) => line.replace(/^(\s*)([#+-]|\d+\.)(?=\s|$)/, "$1\\$2")).join("\n");
+var mdText = (s) => mdLineStarts(mdInline(s));
 var mdLine = (s) => mdText(s.replace(/\s*\n\s*/g, " ").trim());
 var mdHref = (href) => href.replace(/[()\s]/g, (c) => encodeURIComponent(c));
 var mdLink = (text, href) => `[${text}](${mdHref(href)})`;
 function richToMd(v, resolveHref) {
   return richParagraphs(v).map(
     (p) => p.map((f2) => {
-      let t = f2.text.split("\n").map((l) => mdText(l)).join("  \n");
+      let t = mdInline(f2.text).split("\n").join("  \n");
       if (!t.trim()) return t;
       if (f2.italic) t = `_${t}_`;
       if (f2.bold) t = `**${t}**`;
       const target = resolveTarget(f2.link, resolveHref);
       return target ? mdLink(t, target.href) : t;
     }).join("")
-  );
+  ).map(mdLineStarts);
 }
 function sectionsToMarkdown(sections, opts = {}) {
   const { resolveHref } = opts;

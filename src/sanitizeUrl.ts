@@ -36,12 +36,23 @@ export function safeHref(url?: string | null): string | undefined {
   return undefined;
 }
 
-/** http(s), same-origin path, or a data:image/* URI. Returns undefined otherwise. */
+/**
+ * http(s) without credentials, same-origin path, or a raster data:image URI.
+ * Returns undefined otherwise.
+ */
 export function safeImgSrc(url?: string | null): string | undefined {
   if (!url) return undefined;
   const t = url.trim();
-  if (/^https?:\/\//i.test(t)) return t;
-  if (/^data:image\/(png|jpe?g|gif|webp|avif);/i.test(t)) return t;
+  if (/^data:image\/(png|jpe?g|gif|webp|avif);base64,[A-Za-z0-9+/=]+$/i.test(t)) return t;
+  if (UNSAFE_CHARS.test(t)) return undefined;
+  if (/^https?:\/\//i.test(t)) {
+    try {
+      const u = new URL(t);
+      return u.username || u.password ? undefined : t;
+    } catch {
+      return undefined;
+    }
+  }
   if (t.startsWith("/") && !t.startsWith("//")) return t;
   return undefined;
 }

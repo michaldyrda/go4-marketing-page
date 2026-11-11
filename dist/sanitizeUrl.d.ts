@@ -9,7 +9,10 @@
  * only, no parameters), `tel:` (optional + and digits — the server normalizes). Undefined otherwise.
  */
 export declare function safeHref(url?: string | null): string | undefined;
-/** http(s), same-origin path, or a data:image/* URI. Returns undefined otherwise. */
+/**
+ * http(s) without credentials, same-origin path, or a raster data:image URI.
+ * Returns undefined otherwise.
+ */
 export declare function safeImgSrc(url?: string | null): string | undefined;
 /** Positive integer pixel size, or undefined. */
 export declare function safeDimension(n?: number | null): number | undefined;

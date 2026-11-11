@@ -24,14 +24,16 @@ export interface MarkdownOptions {
   labels?: MarketingLabelsInput;
 }
 
-/** Escapes Markdown syntax in content text. */
-function mdText(s: string): string {
-  return s
-    .replace(/[\\`*_[\]<>]/g, (c) => `\\${c}`)
+/** Escapes inline Markdown syntax in content text. */
+const mdInline = (s: string) => s.replace(/[\\`*_[\]<>&]/g, (c) => `\\${c}`);
+/** Escapes block markers (heading, list, numbered list) at the start of each line. */
+const mdLineStarts = (s: string) =>
+  s
     .split("\n")
     .map((line) => line.replace(/^(\s*)([#+-]|\d+\.)(?=\s|$)/, "$1\\$2"))
     .join("\n");
-}
+/** Escapes Markdown syntax in content text. */
+const mdText = (s: string) => mdLineStarts(mdInline(s));
 /** Single line (headings, list items): line breaks become spaces. */
 const mdLine = (s: string) => mdText(s.replace(/\s*\n\s*/g, " ").trim());
 const mdHref = (href: string) => href.replace(/[()\s]/g, (c) => encodeURIComponent(c));
@@ -41,10 +43,7 @@ function richToMd(v: RichText | undefined, resolveHref?: ResolveHref): string[] 
   return richParagraphs(v).map((p) =>
     p
       .map((f) => {
-        let t = f.text
-          .split("\n")
-          .map((l) => mdText(l))
-          .join("  \n");
+        let t = mdInline(f.text).split("\n").join("  \n");
         if (!t.trim()) return t;
         if (f.italic) t = `_${t}_`;
         if (f.bold) t = `**${t}**`;
@@ -52,7 +51,7 @@ function richToMd(v: RichText | undefined, resolveHref?: ResolveHref): string[] 
         return target ? mdLink(t, target.href) : t;
       })
       .join(""),
-  );
+  ).map(mdLineStarts);
 }
 
 export function sectionsToMarkdown(sections: MarketingSection[], opts: MarkdownOptions = {}): string {
