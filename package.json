@@ -1,7 +1,7 @@
 {
   "name": "@go4/marketing-page",
   "version": "0.4.1",
-  "description": "Self-contained renderer for the go4 collection marketing page. Framework-agnostic React, own scoped styles, zero design-system dependency. Shared by the admin app and the B2B portal.",
+  "description": "Self-contained renderer for go4 landing pages. Framework-agnostic React, own scoped styles, zero design-system dependency. Shared by the admin app, the B2B portal and the public brand page.",
   "license": "UNLICENSED",
   "type": "module",
   "sideEffects": false,
@@ -12,7 +12,8 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./styles.css": "./dist/marketing-page.css"
   },
   "files": [
     "dist",
@@ -20,7 +21,7 @@
   ],
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
-    "build": "npm run clean && esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --packages=external --jsx=automatic && tsc -p tsconfig.build.json --emitDeclarationOnly",
+    "build": "npm run clean && node scripts/css.mjs --write-dist && esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --packages=external --jsx=automatic && tsc -p tsconfig.build.json --emitDeclarationOnly",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
@@ -30,7 +31,9 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
+    "@types/node": "^22.20.5",
     "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react-swc": "^3.11.0",
     "esbuild": "^0.25.0",
     "jsdom": "^20.0.3",

@@ -42,7 +42,9 @@ export const MARKETING_CSS = `
   background: var(--g4mp-ondark); color: var(--g4mp-ink);
   transition: opacity 0.15s ease;
 }
+a.g4mp-btn { text-decoration: none; }
 .g4mp-btn:hover { opacity: 0.88; }
+.g4mp-ext { font-size: 0.9em; line-height: 1; }
 .g4mp-btn:focus-visible { outline: 2px solid var(--g4mp-ink); outline-offset: 2px; }
 .g4mp-btn--primary { background: var(--g4mp-ink); color: var(--g4mp-ondark); }
 
@@ -101,11 +103,11 @@ export const MARKETING_CSS = `
 .g4mp-cards__head .g4mp-subtitle { margin-bottom: 12px; }
 .g4mp-cards__grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
 .g4mp-card { position: relative; display: block; width: 100%; aspect-ratio: 2 / 3; overflow: hidden; border-radius: 12px; background: var(--g4mp-ink); }
-button.g4mp-card { appearance: none; -webkit-appearance: none; border: 0; padding: 0; margin: 0; font: inherit; text-align: left; color: inherit; cursor: pointer; }
+.g4mp-card--link { appearance: none; -webkit-appearance: none; border: 0; padding: 0; margin: 0; font: inherit; text-align: left; color: inherit; text-decoration: none; cursor: pointer; }
 .g4mp-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.45s ease; }
 .g4mp-card__fallback { position: absolute; inset: 0; background: linear-gradient(160deg, #2a2e36, #0a0a0a); }
-button.g4mp-card:hover .g4mp-card__img { transform: scale(1.04); }
-button.g4mp-card:focus-visible { outline: 2px solid var(--g4mp-ink); outline-offset: 2px; }
+.g4mp-card--link:hover .g4mp-card__img { transform: scale(1.04); }
+.g4mp-card--link:focus-visible { outline: 2px solid var(--g4mp-ink); outline-offset: 2px; }
 .g4mp-card__overlay { position: absolute; left: 0; right: 0; bottom: 0; height: 82px; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 16px 14px; background: rgba(0, 0, 0, 0.55); }
 .g4mp-card__title { display: block; color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.12; }
 .g4mp-card__sub { display: block; color: rgba(255,255,255,0.82); font-size: 14px; line-height: 1.4; margin-top: 5px; }

@@ -1,9 +1,9 @@
 # @go4/marketing-page
 
-Self-contained renderer for the collection **marketing page** (hero, story, team,
-materials, text, video, CTA, **cards**). One source of truth shared by the admin
-app (editor preview + in-app B2B) and the separate B2B portal, so a new section
-type is added **once** and both surfaces get it.
+Self-contained renderer for go4 **landing pages** (hero, story, team, materials,
+text, video, CTA, cards). One source of truth shared by the admin app (editor
+preview), the B2B portal and the public brand page, so a section type is added
+**once** and every surface gets it.
 
 ## Why it's "thin"
 
@@ -21,27 +21,64 @@ import { MarketingPage } from "@go4/marketing-page";
 
 <MarketingPage
   sections={sections}                 // MarketingSection[] (visible-only is fine; it filters + sorts anyway)
-  onCtaClick={(cta) => { /* order_form → go to catalogue; external_link → open cta.url */ }}
-  transformImageUrl={(url, w) => `${url}?width=${w}`}   // optional CDN/Storage resizer; defaults to identity
+  resolveHref={(link) => hrefFor(link)}   // { kind, id?, url?, path?, available? } → href | null
+  transformImageUrl={(url, w) => `${url}?width=${w}`}   // optional resizer; adds srcset when given
   forceMobile={false}                 // set true for an editor "mobile" preview (forces mobile crop + layout)
 />
 ```
+
+### Links
+
+With `resolveHref`, every button and tile is an `<a href>`. A link with
+`available: false`, a `null` result or an unsafe href (checked by `safeHref`:
+http(s) without credentials, same-origin path, strict `mailto:` / `tel:`) is drawn
+**without** a link — the button disappears, a tile stays as a plain tile. Never a
+dead link. External links get `rel="noopener noreferrer nofollow"`, open in a new
+tab and carry an exit mark (`.g4mp-ext`). `onLinkClick(event, link)` lets an SPA
+host route on the client.
+
+Legacy hosts that pass only `onCtaClick` keep `<button>`s (0.4.1 behaviour).
+Legacy CTAs (`type` + `url` / `collection_id`) map to links via `ctaLink`:
+`order_form` and `…order?collection=all` → `catalog`, `collection` → `collection`,
+other URLs → `external`.
+
+### Headings, images, video
+
+- The first title drawn on the page is the only `<h1>`; other section titles are
+  `<h2>`, tile titles `<h3>` (position decides, not type).
+- `alt` = the brand's alt text, else the section title, else empty (decorative).
+- `width` / `height` from content; `loading="lazy"` outside the first section.
+- Video: `poster` + `preload="none"` when a poster exists, else `preload="metadata"`.
+
+### Styles and Content-Security-Policy
+
+By default the stylesheet is injected inline. For a strict CSP, either allow
+`MARKETING_CSS_SHA256` in `style-src`, or render with `injectStyles={false}` and
+load the file `@go4/marketing-page/styles.css`. `npm run build` regenerates both;
+`npm test` fails if the hash is stale.
 
 ### Props
 
 | Prop | Type | Notes |
 |------|------|-------|
 | `sections` | `MarketingSection[]` | Filtered to visible + sorted by `order_index` internally. |
-| `onCtaClick` | `(cta) => void` | Host decides navigation. **Sanitize `cta.url` with `safeHref` before `window.open`.** |
+| `resolveHref` | `(link) => string \| null` | Turns a link target into an href for this host. |
+| `onLinkClick` | `(event, link) => void` | Optional client-side routing hook on rendered links. |
+| `onCtaClick` | `(cta) => void` | Legacy, only without `resolveHref`: CTAs are `<button>`s. |
 | `transformImageUrl` | `(url, width) => string` | Optional. Defaults to identity. |
 | `forceMobile` | `boolean` | Editor mobile preview only. |
+| `injectStyles` | `boolean` | Default `true`; `false` for hosts loading `styles.css`. |
 | `className` | `string` | Extra class on the root. |
 
 ## Security
 
-- No `dangerouslySetInnerHTML` anywhere — all text is escaped React children.
-- Image/video `src` is filtered by `safeImgSrc` (http/https/same-origin/`data:image` only).
-- `safeHref` (exported) filters CTA links to http/https/same-origin before `window.open`.
+- Content is always escaped React children. The only `dangerouslySetInnerHTML` is
+  the package's own constant stylesheet (React escapes `<style>` text on the
+  server, which would break the CSS and its hash).
+- Image/video `src` is filtered by `safeImgSrc` (http/https/same-origin/`data:image` raster only).
+- Every href goes through `safeHref`, whatever the host returns.
+- Section type and variants come from closed lists — content never becomes a class
+  or attribute name.
 
 ## Mobile crops
 

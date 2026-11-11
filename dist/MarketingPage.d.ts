@@ -1,17 +1,32 @@
-import type { MarketingCta, MarketingSection, TransformImageUrl } from "./types";
+import type { MouseEvent } from "react";
+import type { LandingLink, MarketingCta, MarketingSection, ResolveHref, TransformImageUrl } from "./types";
 export interface MarketingPageProps {
     sections: MarketingSection[];
-    /** CTA click (e.g. "Start order" → go to catalogue). External links are host-handled. */
+    /**
+     * Turns a link target into an href for this host (e.g. the portal prefixes
+     * the boutique path). When given, buttons and tiles are `<a href>`; a target
+     * that is unavailable or resolves to null is drawn without a link.
+     */
+    resolveHref?: ResolveHref;
+    /** Optional click hook on rendered links (client-side routing in an SPA host). */
+    onLinkClick?: (event: MouseEvent<HTMLAnchorElement>, link: LandingLink) => void;
+    /** Legacy: without `resolveHref`, CTAs are `<button>`s and the host navigates here. */
     onCtaClick?: (cta: MarketingCta) => void;
     /** Render mobile crops + mobile layout regardless of viewport (editor preview). */
     forceMobile?: boolean;
     /** Optional CDN/Storage resizer. Defaults to identity. */
     transformImageUrl?: TransformImageUrl;
+    /**
+     * Inject the stylesheet as an inline `<style>` (default). Hosts with a strict
+     * Content-Security-Policy set `false` and load `@go4/marketing-page/styles.css`
+     * as a file instead (or allow `MARKETING_CSS_SHA256`).
+     */
+    injectStyles?: boolean;
     className?: string;
 }
 /**
- * Full collection marketing page — all visible sections in order, with its own
- * self-contained styles injected inline. Zero dependency on any host design
- * system, so the admin preview and the B2B portal render it identically.
+ * Full marketing page — all visible sections in order. Zero dependency on any
+ * host design system, so the admin preview, the B2B portal and the public brand
+ * page render the same content.
  */
-export declare function MarketingPage({ sections, onCtaClick, forceMobile, transformImageUrl, className, }: MarketingPageProps): import("react").JSX.Element;
+export declare function MarketingPage({ sections, resolveHref, onLinkClick, onCtaClick, forceMobile, transformImageUrl, injectStyles, className, }: MarketingPageProps): import("react").JSX.Element;
