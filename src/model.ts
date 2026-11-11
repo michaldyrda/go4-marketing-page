@@ -222,24 +222,25 @@ export interface PlannedSection {
   joined: boolean;
 }
 
-/** Sort key of stored sections: `order_index`, then position. */
-const visibleSorted = (sections: LandingSection[]) =>
+/** Sort key of stored sections: `order_index`, then position. Hidden sections only on request (page file). */
+const visibleSorted = (sections: LandingSection[], includeHidden = false) =>
   sections
     .map((s, i) => ({ s, i }))
-    .filter(({ s }) => s.is_visible)
+    .filter(({ s }) => includeHidden || s.is_visible)
     .sort((a, b) => a.s.order_index - b.s.order_index || a.i - b.i)
     .map(({ s }) => s);
 
 /** Normalizes stored sections and decides, once, what each of them draws. */
-export function planPage(raw: readonly unknown[], resolveHref?: ResolveHref): PlannedSection[] {
+export function planPage(raw: readonly unknown[], resolveHref?: ResolveHref, includeHidden = false): PlannedSection[] {
   const sections = visibleSorted(
     (Array.isArray(raw) ? raw : []).map(normalizeSection).filter((s): s is LandingSection => !!s),
+    includeHidden,
   );
   let prev: LandingSection | null = null;
   let h1Used = false;
   let firstUsed = false;
   return sections.map((section) => {
-    const drawn = hasContent(section, resolveHref);
+    const drawn = section.is_visible && hasContent(section, resolveHref);
     const h1 = drawn && !h1Used && !!sectionTitle(section);
     const joined = drawn && !!prev && !hasHead(section) && surfaceOf(section) === surfaceOf(prev);
     const first = drawn && !firstUsed;

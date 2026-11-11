@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { drawnItems, has } from "../model";
-import { Frame, Img, SLOTS, altOf, cx } from "../render";
+import { Frame, Img, SLOTS, altOf, cx, useField, useItem } from "../render";
 import type { LandingSection } from "../types";
 import { Copy, hasCopy } from "./Copy";
 
@@ -16,6 +16,8 @@ export function Gallery({ section }: { section: LandingSection }) {
   const items = drawnItems(section);
   const n = items.length;
   const captions = items.some((i) => has(i.caption) || has(i.subcaption));
+  const field = useField();
+  const item = useItem();
   return (
     <Frame className="g4mp-section g4mp-grid">
       <div className="g4mp-inner">
@@ -26,19 +28,20 @@ export function Gallery({ section }: { section: LandingSection }) {
         )}
         {n > 0 && (
           <div className={cx("g4mp-grid__items", COUNT_CLASS[n], captions && "g4mp-grid__items--captions")}>
-            {items.map((item, i) => {
+            {items.map((it, i) => {
+              const plain = !has(it.caption) && !has(it.subcaption);
               const cell = (
-                <div className="g4mp-grid__cell">
-                  <Img media={item.media} slot={n === 1 ? SLOTS.WIDE : SLOTS.GRID} alt={altOf(item.media, item.caption)} className="g4mp-img" />
+                <div className="g4mp-grid__cell" {...(plain ? item : {})}>
+                  <Img media={it.media} slot={n === 1 ? SLOTS.WIDE : SLOTS.GRID} alt={altOf(it.media, it.caption)} className="g4mp-img" />
                 </div>
               );
-              if (!has(item.caption) && !has(item.subcaption)) return <Fragment key={i}>{cell}</Fragment>;
+              if (plain) return <Fragment key={i}>{cell}</Fragment>;
               return (
-                <figure key={i} className="g4mp-grid__fig">
+                <figure key={i} className="g4mp-grid__fig" {...item}>
                   {cell}
-                  <figcaption className="g4mp-grid__cap">
-                    {item.caption}
-                    {has(item.subcaption) && <span className="g4mp-grid__subcap">{item.subcaption}</span>}
+                  <figcaption className="g4mp-grid__cap" {...field("caption")}>
+                    {it.caption}
+                    {has(it.subcaption) && <span className="g4mp-grid__subcap" {...field("subcaption")}>{it.subcaption}</span>}
                   </figcaption>
                 </figure>
               );

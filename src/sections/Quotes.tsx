@@ -1,5 +1,5 @@
 import { drawnItems, has, mediaSrc } from "../model";
-import { Frame, Img, RichTextView, SLOTS, Title, altOf, cx } from "../render";
+import { Frame, Img, RichTextView, SLOTS, Title, altOf, cx, useField, useItem } from "../render";
 import type { LandingItem, LandingSection } from "../types";
 
 /** Quotes — one large quote, or 2–6 as cards; a quote without an author is not drawn. */
@@ -25,16 +25,17 @@ export function Quotes({ section }: { section: LandingSection }) {
 
 function Quote({ item, solo }: { item: LandingItem; solo: boolean }) {
   const avatar = mediaSrc(item.avatar);
+  const field = useField();
   return (
-    <figure className={cx("g4mp-quote", solo && "g4mp-quote--solo")}>
+    <figure className={cx("g4mp-quote", solo && "g4mp-quote--solo")} {...useItem()}>
       <blockquote>
-        <RichTextView value={item.text} className="g4mp-quote__text" />
+        <RichTextView value={item.text} className="g4mp-quote__text" field="text" />
       </blockquote>
       <figcaption className="g4mp-quote__by">
-        {avatar && <Img media={item.avatar} slot={SLOTS.AVATAR} alt={altOf(item.avatar, item.author)} className="g4mp-img g4mp-quote__avatar" />}
+        {avatar && <Img media={item.avatar} slot={SLOTS.AVATAR} alt={altOf(item.avatar, item.author)} className="g4mp-img g4mp-quote__avatar" field="avatar" />}
         <span>
-          {has(item.author) && <span className="g4mp-quote__name">{item.author}</span>}
-          {has(item.role) && <span className="g4mp-quote__role">{item.role}</span>}
+          {has(item.author) && <span className="g4mp-quote__name" {...field("author")}>{item.author}</span>}
+          {has(item.role) && <span className="g4mp-quote__role" {...field("role")}>{item.role}</span>}
         </span>
       </figcaption>
     </figure>

@@ -39,10 +39,16 @@ export interface MarketingPageProps {
      */
     renderInsertSlot?: (index: number) => ReactNode;
     className?: string;
+    /**
+     * Page file — use `renderPageFile`. Every section (hidden ones with `hidden`)
+     * carries the contract attributes; sections from go4 data carry only their
+     * title, text and options.
+     */
+    fileMode?: boolean;
 }
 /**
  * Full landing page — all visible sections in order. Zero dependency on any
  * host design system, so the admin preview, the B2B portal and the public brand
  * page render the same content. No `window` access: safe for server rendering.
  */
-export declare function MarketingPage({ sections, resolveHref, onLinkClick, onCtaClick, forceMobile, transformImageUrl, injectStyles, labels, editorMode, onSectionClick, renderInsertSlot, className, }: MarketingPageProps): import("react").JSX.Element;
+export declare function MarketingPage({ sections, resolveHref, onLinkClick, onCtaClick, forceMobile, transformImageUrl, injectStyles, labels, editorMode, onSectionClick, renderInsertSlot, className, fileMode, }: MarketingPageProps): import("react").JSX.Element;

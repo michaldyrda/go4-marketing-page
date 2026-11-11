@@ -180,9 +180,26 @@ load the file `@go4/marketing-page/styles.css`. `npm run build` regenerates both
 |---|---|---|
 | `@go4/marketing-page` | `MarketingPage` (marked `"use client"`) + everything from `./data` | yes |
 | `@go4/marketing-page/data` | `normalizeSection`, `SECTION_CATALOG`, rich text helpers, `sectionsToMarkdown`, `buildStructuredData`, `jsonLdScriptContent`, URL guards, `MARKETING_CSS` | **no** — safe in server code (Next server components and routes), Deno, plain Node |
+| `@go4/marketing-page/file` | `renderPageFile` — the page as an HTML file (editor: Download / Copy HTML) | yes, with `react-dom/server` |
 | `@go4/marketing-page/styles.css` | the stylesheet as a file | — |
 
-Build gate (`scripts/check-dist.mjs`): `dist/data.js` must not import React and `dist/index.js` must start with `"use client"`. Test `src/entries.test.ts` checks that the stylesheet contains rules only (text outside a rule breaks CSS minifiers and swallows the next rule).
+Build gate (`scripts/check-dist.mjs`): `dist/data.js` must not import React, `dist/index.js` must start with `"use client"` and must not import `react-dom/server` (only `./file` does).
+
+## Page file — `renderPageFile(sections, opts)`
+
+The page as an HTML document for an AI chat and back (concept §12): a fixed
+instruction comment generated from `SECTION_CATALOG` (`pageFileInstructions()`,
+no brand or page content), the stylesheet, and the package's own drawing in file
+mode. Only file mode draws the contract attributes (`CONTRACT_ATTRIBUTES`):
+`data-go4-page` + `data-go4-format` on `<main>`, `data-go4-section` and the
+section options (`data-go4-variant`, `data-go4-mode`, `data-go4-collections`…),
+`data-go4-field` on every field element, `data-go4-item` on items,
+`data-go4-media-id` on images, `data-go4-link-kind` / `data-go4-link-id` on links,
+`data-go4-ignore` on decoration. File mode also writes hidden and empty sections
+and buttons without a target; sections from go4 data carry only title, text and
+options. Classes (`CONTRACT_CLASSES`) and attributes are a contract versioned by
+`CONTRACT_VERSION` and frozen by `src/pageFile.test.tsx`. The admin app reads the
+file back on the server (`parsePageFile`) — never stores or serves it. Test `src/entries.test.ts` checks that the stylesheet contains rules only (text outside a rule breaks CSS minifiers and swallows the next rule).
 
 ## Security
 

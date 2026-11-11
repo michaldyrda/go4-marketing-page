@@ -53,7 +53,7 @@ export interface CatalogEntry {
     /** Retired 0.4.x types read as this component. */
     legacyTypes?: readonly string[];
 }
-/** Version of the catalog contract (types, fields, classes). */
+/** Version of the catalog (types, fields, limits). Classes and `data-go4-*` attributes: `CONTRACT_VERSION`. */
 export declare const CATALOG_VERSION = 1;
 export declare const SECTION_CATALOG: readonly CatalogEntry[];
 /** Catalog entry by type (own keys only). */

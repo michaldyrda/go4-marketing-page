@@ -1,6 +1,6 @@
 import { drawnButtons, has, mediaSrc } from "../model";
 import { hasRichText } from "../richText";
-import { Buttons, Frame, Img, RichTextView, SLOTS, Title, altOf, usePage } from "../render";
+import { Buttons, Frame, Img, RichTextView, SLOTS, Title, altOf, mediaFileAttrs, useField, usePage } from "../render";
 import { safeDimension, safeImgSrc } from "../sanitizeUrl";
 import type { LandingSection } from "../types";
 
@@ -10,7 +10,8 @@ export function Hero({ section }: { section: LandingSection }) {
 }
 
 function HeroCover({ section }: { section: LandingSection }) {
-  const { transform } = usePage();
+  const { transform, fileMode } = usePage();
+  const field = useField();
   const c = section.config;
   const m = c.media;
   const video = m?.media_type === "video" ? safeImgSrc(m.file_url) : undefined;
@@ -31,6 +32,7 @@ function HeroCover({ section }: { section: LandingSection }) {
           width={safeDimension(m?.width)}
           height={safeDimension(m?.height)}
           aria-hidden="true"
+          {...(fileMode ? mediaFileAttrs(m, "media") : {})}
         />
       ) : mediaSrc(m) ? (
         <Img media={m} slot={SLOTS.HERO} alt={altOf(m, c.title)} className="g4mp-img g4mp-hero__img" />
@@ -40,7 +42,7 @@ function HeroCover({ section }: { section: LandingSection }) {
       <div className="g4mp-hero__scrim" />
       <div className="g4mp-hero__inner">
         <div className="g4mp-hero__box">
-          {has(c.eyebrow) && <p className="g4mp-eyebrow">{c.eyebrow}</p>}
+          {has(c.eyebrow) && <p className="g4mp-eyebrow" {...field("eyebrow")}>{c.eyebrow}</p>}
           {has(c.title) && <Title className="g4mp-title">{c.title}</Title>}
           <RichTextView value={c.body} className="g4mp-hero__body" />
           <Buttons buttons={c.buttons} variants={["plain", "outline"]} />
@@ -52,6 +54,7 @@ function HeroCover({ section }: { section: LandingSection }) {
 
 function HeroSplit({ section }: { section: LandingSection }) {
   const { resolveHref } = usePage();
+  const field = useField();
   const c = section.config;
   const text = has(c.eyebrow) || has(c.title) || hasRichText(c.body) || drawnButtons(c.buttons, resolveHref).length > 0;
   return (
@@ -59,7 +62,7 @@ function HeroSplit({ section }: { section: LandingSection }) {
       <div className="g4mp-inner g4mp-hero-split__grid">
         {text && (
           <div className="g4mp-hero-split__copy">
-            {has(c.eyebrow) && <p className="g4mp-eyebrow">{c.eyebrow}</p>}
+            {has(c.eyebrow) && <p className="g4mp-eyebrow" {...field("eyebrow")}>{c.eyebrow}</p>}
             {has(c.title) && <Title className="g4mp-title g4mp-hero-split__title">{c.title}</Title>}
             <RichTextView value={c.body} className="g4mp-hero-split__body" />
             <Buttons buttons={c.buttons} variants={["primary", "outline-dark"]} />

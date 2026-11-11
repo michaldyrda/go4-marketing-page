@@ -17,6 +17,7 @@ import { Text } from "./Text";
 import { Video } from "./Video";
 
 export { Empty } from "./Empty";
+export { FileData, FILE_DATA_TYPES } from "./FileData";
 
 /** Type → component (closed list). */
 export const SECTION_COMPONENTS: Record<LandingSectionType, ComponentType<{ section: LandingSection }>> = {

@@ -6,6 +6,8 @@ import { MARKETING_CSS } from "./styles";
 import { sectionsToMarkdown } from "./markdown";
 import { buildStructuredData, jsonLdScriptContent } from "./structuredData";
 import type { LandingLink, MarketingSection } from "./types";
+import { CONTRACT_ATTRIBUTES } from "./contract";
+import { renderPageFile } from "./pageFile";
 
 /**
  * Content written straight into the stored sections (bypassing the editor and the
@@ -132,7 +134,10 @@ function hostileSections(seed: number): MarketingSection[] {
 const ALLOWED_TAGS = new Set([
   "div", "section", "p", "h1", "h2", "h3", "span", "a", "img", "picture", "source", "video", "ul", "ol",
   "li", "figure", "figcaption", "blockquote", "details", "summary", "strong", "em", "u", "br", "button", "i",
+  "main",
 ]);
+/** Values of contract attributes: closed lists, UUIDs, short keys, numbers — never free text. */
+const SAFE_CONTRACT_VALUE = /^[A-Za-z0-9_,.-]{0,1000}$/;
 
 function assertClean(html: string, label: string) {
   const errors: string[] = [];
@@ -158,6 +163,10 @@ function assertClean(html: string, label: string) {
         }
       }
       if (attr.name === "class" && !attr.value.split(/\s+/).every((c) => /^g4mp[a-z0-9_-]*$/.test(c))) errors.push(`class=${attr.value}`);
+      if (attr.name.startsWith("data-go4")) {
+        if (!CONTRACT_ATTRIBUTES.includes(attr.name)) errors.push(`${tag}[${attr.name}]`);
+        if (attr.name !== "data-go4-field" && !SAFE_CONTRACT_VALUE.test(attr.value)) errors.push(`${tag}[${attr.name}]=${attr.value}`);
+      }
     }
   }
   expect(errors, label).toEqual([]);
@@ -189,6 +198,21 @@ describe("hostile content written straight into sections", () => {
         }
       });
     }
+  }
+
+  for (const seed of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+    it(`page file (renderPageFile) · corpus ${seed}`, () => {
+      for (const resolveHref of [undefined, resolvers[1][1], resolvers[3][1]]) {
+        const file = renderPageFile(hostileSections(seed), { resolveHref, lang: seed % 2 ? '"><script>' : "en" });
+        // Only the page root is content; head and instruction are the package's constants.
+        const root = file.slice(file.indexOf("<main"), file.lastIndexOf("</main>") + 7);
+        expect(root.startsWith("<main")).toBe(true);
+        assertClean(root, `file/${seed}`);
+        expect(file).not.toContain("<script");
+        expect(file.match(/<style>/g)).toHaveLength(1);
+        expect(file).toContain('<html lang="en">');
+      }
+    });
   }
 
   it("prototype keys in stored JSON do not leak into the page", () => {

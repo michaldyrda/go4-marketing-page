@@ -1,5 +1,5 @@
 import { drawnItems, has, mediaSrc } from "../model";
-import { Frame, Img, RichTextView, SLOTS, Title, altOf, cx } from "../render";
+import { Frame, Img, RichTextView, SLOTS, Title, altOf, cx, useField, useIgnore, useItem } from "../render";
 import type { LandingSection } from "../types";
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -9,6 +9,9 @@ export function Features({ section }: { section: LandingSection }) {
   const c = section.config;
   const items = drawnItems(section);
   const cols = items.length === 2 || items.length === 4 ? "g4mp-features__list--2" : "g4mp-features__list--3";
+  const field = useField();
+  const item = useItem();
+  const ignore = useIgnore();
   return (
     <Frame className="g4mp-section g4mp-features">
       <div className="g4mp-inner">
@@ -22,11 +25,11 @@ export function Features({ section }: { section: LandingSection }) {
             {items.map((it, i) => {
               const img = mediaSrc(it.media);
               return (
-                <li key={i} className={cx("g4mp-feature", img && "g4mp-feature--media")}>
+                <li key={i} className={cx("g4mp-feature", img && "g4mp-feature--media")} {...item}>
                   {img && <Img media={it.media} slot={SLOTS.FEATURE} alt={altOf(it.media, it.title)} className="g4mp-img g4mp-feature__img" />}
                   <div className="g4mp-feature__text">
-                    <span className="g4mp-feature__no">{pad2(i + 1)}</span>
-                    {has(it.title) && <h3 className="g4mp-feature__title">{it.title}</h3>}
+                    <span className="g4mp-feature__no" {...ignore}>{pad2(i + 1)}</span>
+                    {has(it.title) && <h3 className="g4mp-feature__title" {...field("title")}>{it.title}</h3>}
                     <RichTextView value={it.body} className="g4mp-feature__body" />
                   </div>
                 </li>

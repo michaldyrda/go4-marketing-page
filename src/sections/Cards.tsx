@@ -30,6 +30,7 @@ export function Cards({ section }: { section: LandingSection }) {
                 lines={typeof item.body === "string" && has(item.body) ? [item.body] : []}
                 target={resolveTarget(item.link, page.resolveHref)}
                 onLegacyClick={!page.resolveHref && legacy ? () => page.onCtaClick?.(legacy) : undefined}
+                lineFields={["body"]}
               />
             );
           })}

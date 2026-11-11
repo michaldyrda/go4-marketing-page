@@ -58,6 +58,6 @@ export interface PlannedSection {
     joined: boolean;
 }
 /** Normalizes stored sections and decides, once, what each of them draws. */
-export declare function planPage(raw: readonly unknown[], resolveHref?: ResolveHref): PlannedSection[];
+export declare function planPage(raw: readonly unknown[], resolveHref?: ResolveHref, includeHidden?: boolean): PlannedSection[];
 /** Legacy CTA behind a button / card (hosts with only `onCtaClick`). */
 export { legacyCtaOf };

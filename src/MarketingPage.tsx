@@ -1,11 +1,12 @@
 import { Fragment } from "react";
+import { CONTRACT_VERSION, FILE_ATTR, sectionFileAttrs } from "./contract";
 import type { MouseEvent, ReactNode } from "react";
 import { mergeLabels } from "./labels";
 import type { MarketingLabelsInput } from "./labels";
 import { planPage } from "./model";
 import { PageContext, SectionContext, cx } from "./render";
 import type { PageHost } from "./render";
-import { Empty, SECTION_COMPONENTS } from "./sections";
+import { Empty, FILE_DATA_TYPES, FileData, SECTION_COMPONENTS } from "./sections";
 import { MARKETING_CSS } from "./styles";
 import type { LandingLink, MarketingCta, MarketingSection, ResolveHref, TransformImageUrl } from "./types";
 
@@ -47,6 +48,12 @@ export interface MarketingPageProps {
    */
   renderInsertSlot?: (index: number) => ReactNode;
   className?: string;
+  /**
+   * Page file — use `renderPageFile`. Every section (hidden ones with `hidden`)
+   * carries the contract attributes; sections from go4 data carry only their
+   * title, text and options.
+   */
+  fileMode?: boolean;
 }
 
 /**
@@ -67,8 +74,10 @@ export function MarketingPage({
   onSectionClick,
   renderInsertSlot,
   className,
+  fileMode = false,
 }: MarketingPageProps) {
-  const plan = planPage(sections, resolveHref);
+  if (fileMode) editorMode = false;
+  const plan = planPage(sections, resolveHref, fileMode);
   const host: PageHost = {
     resolveHref,
     onLinkClick,
@@ -78,22 +87,35 @@ export function MarketingPage({
     labels: mergeLabels(labels),
     editorMode,
     onSectionClick,
+    fileMode,
   };
+  const Root = fileMode ? "main" : "div";
+  const rootAttrs = fileMode ? { [FILE_ATTR.page]: "", [FILE_ATTR.format]: String(CONTRACT_VERSION) } : {};
 
   return (
     <PageContext.Provider value={host}>
-      <div className={cx("g4mp", forceMobile && "g4mp--mobile", className)}>
+      <Root className={cx("g4mp", forceMobile && "g4mp--mobile", className)} {...rootAttrs}>
         {/* Raw text: React escapes <style> children on the server ("…" → &quot;),
             which breaks the CSS. The string is the package's own constant, never content. */}
         {injectStyles && <style dangerouslySetInnerHTML={{ __html: MARKETING_CSS }} />}
         {plan.map((p, i) => {
-          const Component = SECTION_COMPONENTS[p.section.type];
-          const body = p.drawn ? <Component section={p.section} /> : editorMode ? <Empty section={p.section} /> : null;
+          const Component = fileMode && FILE_DATA_TYPES.has(p.section.type) ? FileData : SECTION_COMPONENTS[p.section.type];
+          // File mode draws every section, also an empty or hidden one: the file is the whole page.
+          const body =
+            p.drawn || fileMode ? <Component section={p.section} /> : editorMode ? <Empty section={p.section} /> : null;
+          const hidden = !p.section.is_visible;
           return (
             <Fragment key={`${i}:${p.section.id}`}>
               {renderInsertSlot?.(i)}
               <SectionContext.Provider
-                value={{ id: p.section.id, type: p.section.type, h1: p.h1, first: p.first, joined: p.joined }}
+                value={{
+                  id: p.section.id,
+                  type: p.section.type,
+                  h1: p.h1,
+                  first: p.first,
+                  joined: p.joined,
+                  ...(fileMode ? { fileAttrs: sectionFileAttrs(p.section, hidden), hidden } : {}),
+                }}
               >
                 {body}
               </SectionContext.Provider>
@@ -101,7 +123,7 @@ export function MarketingPage({
           );
         })}
         {renderInsertSlot?.(plan.length)}
-      </div>
+      </Root>
     </PageContext.Provider>
   );
 }

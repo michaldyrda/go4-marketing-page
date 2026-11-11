@@ -73,7 +73,7 @@ const body = f("body", "richtext", L.body);
 const alt = f("alt", "text", L.alt);
 const buttonLabel = f("label", "text", L.buttonLabel);
 
-/** Version of the catalog contract (types, fields, classes). */
+/** Version of the catalog (types, fields, limits). Classes and `data-go4-*` attributes: `CONTRACT_VERSION`. */
 export const CATALOG_VERSION = 1;
 
 export const SECTION_CATALOG: readonly CatalogEntry[] = [

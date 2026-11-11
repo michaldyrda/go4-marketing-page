@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { ResolvedTarget } from "../model";
-import { ExitMark, Img, SLOTS, useAnchorProps } from "../render";
+import { ExitMark, Img, SLOTS, useAnchorProps, useField, useItem } from "../render";
 import type { LandingMedia } from "../types";
 
 /**
@@ -14,6 +14,7 @@ export function Tile({
   lines,
   target,
   onLegacyClick,
+  lineFields = [],
 }: {
   media?: LandingMedia;
   alt: string;
@@ -21,8 +22,12 @@ export function Tile({
   lines: string[];
   target: ResolvedTarget | null;
   onLegacyClick?: () => void;
+  /** File mode: field name of each line (Cards: `body`). */
+  lineFields?: string[];
 }) {
   const anchor = useAnchorProps();
+  const field = useField();
+  const item = useItem();
   const legacy = !target && !!onLegacyClick;
   // Headings are not allowed inside <button> (legacy hosts) — a span there.
   const TitleTag = legacy ? "span" : "h3";
@@ -36,9 +41,9 @@ export function Tile({
       )}
       {(title || lines.length > 0) && (
         <span className="g4mp-card__overlay">
-          {title && <TitleTag className="g4mp-card__title">{title}</TitleTag>}
+          {title && <TitleTag className="g4mp-card__title" {...field("title")}>{title}</TitleTag>}
           {lines.map((l, i) => (
-            <span key={i} className="g4mp-card__sub">
+            <span key={i} className="g4mp-card__sub" {...(lineFields[i] ? field(lineFields[i]) : {})}>
               {l}
             </span>
           ))}
@@ -48,7 +53,7 @@ export function Tile({
   );
   if (target) {
     return (
-      <a className="g4mp-card g4mp-card--link" {...anchor(target)}>
+      <a className="g4mp-card g4mp-card--link" {...anchor(target)} {...item} {...field("link")}>
         {inner}
         {target.external && <ExitMark />}
       </a>
@@ -61,7 +66,7 @@ export function Tile({
       </button>
     );
   }
-  return <div className="g4mp-card">{inner}</div>;
+  return <div className="g4mp-card" {...item}>{inner}</div>;
 }
 
 /** Closed list — content never reaches a class name directly. */

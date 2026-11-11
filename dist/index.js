@@ -3,6 +3,404 @@
 // src/MarketingPage.tsx
 import { Fragment as Fragment7 } from "react";
 
+// src/catalog.ts
+var TEXT_LIMITS = {
+  eyebrow: 80,
+  title: 80,
+  subtitle: 120,
+  body: 600,
+  heroBody: 300,
+  buttonLabel: 30,
+  alt: 125
+};
+var CATALOG_GROUPS = ["Opening", "Content", "Media", "From go4", "Trust"];
+var L = TEXT_LIMITS;
+var f = (key, kind, maxChars, options) => ({ key, kind, ...maxChars ? { maxChars } : {}, ...options ? { options } : {} });
+var title = f("title", "text", L.title);
+var subtitle = f("subtitle", "text", L.subtitle);
+var body = f("body", "richtext", L.body);
+var alt = f("alt", "text", L.alt);
+var buttonLabel = f("label", "text", L.buttonLabel);
+var CATALOG_VERSION = 1;
+var SECTION_CATALOG = [
+  {
+    type: "hero",
+    group: "Opening",
+    variants: ["cover", "split"],
+    fields: [f("eyebrow", "text", L.eyebrow), title, f("body", "richtext", L.heroBody), f("media", "media"), alt, buttonLabel, f("link", "link")],
+    buttons: { min: 0, max: 2 },
+    crops: { cover: { desktop: "21:9", mobile: "4:5" }, split: { desktop: "4:5", mobile: "4:5" } }
+  },
+  {
+    type: "cta",
+    group: "Opening",
+    fields: [title, body, buttonLabel, f("link", "link")],
+    buttons: { min: 1, max: 2 }
+  },
+  {
+    type: "text_block",
+    group: "Content",
+    fields: [title, subtitle, body, buttonLabel, f("link", "link")],
+    buttons: { min: 0, max: 1 }
+  },
+  {
+    type: "story",
+    group: "Content",
+    fields: [title, subtitle, body, f("media", "image"), alt, f("image_side", "choice", void 0, ["right", "left"]), buttonLabel, f("link", "link")],
+    buttons: { min: 0, max: 1 },
+    crops: { image: { desktop: "4:3", mobile: "4:3" } }
+  },
+  {
+    type: "cards",
+    group: "Content",
+    fields: [title, subtitle, body],
+    items: { min: 2, max: 4, fields: [f("media", "image"), alt, title, f("body", "text"), f("link", "link")] },
+    crops: { image: { desktop: "2:3", mobile: "2:3" } }
+  },
+  {
+    type: "faq",
+    group: "Content",
+    fields: [title],
+    items: { min: 2, max: 12, fields: [f("question", "text"), f("answer", "richtext", L.body)] }
+  },
+  {
+    type: "gallery",
+    group: "Media",
+    fields: [title, body],
+    items: { min: 1, max: 12, fields: [f("media", "image"), alt, f("caption", "text"), f("subcaption", "text")] },
+    crops: { one: { desktop: "21:9", mobile: "16:9" }, many: { desktop: "1:1", mobile: "1:1" } },
+    legacyTypes: ["team", "materials"]
+  },
+  {
+    type: "video",
+    group: "Media",
+    fields: [f("media", "video"), title, f("caption", "text")],
+    crops: { poster: { desktop: "16:9", mobile: "16:9" } }
+  },
+  {
+    type: "collections",
+    group: "From go4",
+    fields: [title, f("mode", "choice", void 0, ["all", "selected"]), f("limit", "number"), f("show_shipping", "toggle")],
+    items: { min: 1, max: 12, fields: [f("collection_id", "collection")] },
+    crops: { cover: { desktop: "2:3", mobile: "2:3" } },
+    resolved: "collections"
+  },
+  {
+    type: "products",
+    group: "From go4",
+    fields: [title, subtitle, f("mode", "choice", void 0, ["selected", "collection"]), f("collection_id", "collection"), f("limit", "number")],
+    items: { min: 2, max: 8, fields: [f("product_id", "product")] },
+    crops: { image: { desktop: "4:5", mobile: "4:5" } },
+    resolved: "products"
+  },
+  {
+    type: "contact",
+    group: "From go4",
+    fields: [title, body, f("show.address", "toggle"), f("show.email", "toggle"), f("show.website", "toggle"), f("show.instagram", "toggle")],
+    resolved: "contact"
+  },
+  {
+    type: "facts",
+    group: "Trust",
+    fields: [],
+    items: { min: 2, max: 4, fields: [f("value", "text"), f("label", "text")] }
+  },
+  {
+    type: "features",
+    group: "Trust",
+    fields: [title],
+    items: { min: 2, max: 6, fields: [title, f("body", "richtext", L.body), f("media", "image"), alt] },
+    crops: { image: { desktop: "3:2", mobile: "3:2" } }
+  },
+  {
+    type: "quotes",
+    group: "Trust",
+    fields: [title],
+    items: { min: 1, max: 6, fields: [f("text", "richtext", L.body), f("author", "text"), f("role", "text"), f("avatar", "image"), alt] },
+    crops: { avatar: { desktop: "1:1", mobile: "1:1" } }
+  },
+  {
+    type: "logos",
+    group: "Trust",
+    fields: [title],
+    items: { min: 3, max: 12, fields: [f("media", "image"), f("name", "text", L.alt), f("link", "link")] }
+  }
+];
+var catalogEntry = (type) => SECTION_CATALOG.find((e) => e.type === type);
+
+// src/contract.ts
+var CONTRACT_VERSION = 1;
+var FILE_ATTR = {
+  page: "data-go4-page",
+  format: "data-go4-format",
+  section: "data-go4-section",
+  hidden: "data-go4-hidden",
+  field: "data-go4-field",
+  item: "data-go4-item",
+  mediaId: "data-go4-media-id",
+  mobileMediaId: "data-go4-mobile-media-id",
+  sourceMediaId: "data-go4-source-media-id",
+  linkKind: "data-go4-link-kind",
+  linkId: "data-go4-link-id",
+  /** Decoration the import skips (exit mark, numbering). */
+  ignore: "data-go4-ignore"
+};
+var CONTRACT_CLASSES = [
+  "g4mp",
+  "g4mp--mobile",
+  "g4mp-body",
+  "g4mp-btn",
+  "g4mp-btn--outline",
+  "g4mp-btn--outline-dark",
+  "g4mp-btn--primary",
+  "g4mp-btns",
+  "g4mp-card",
+  "g4mp-card--link",
+  "g4mp-card__fallback",
+  "g4mp-card__img",
+  "g4mp-card__overlay",
+  "g4mp-card__sub",
+  "g4mp-card__title",
+  "g4mp-cards",
+  "g4mp-cards__grid",
+  "g4mp-cards__grid--2",
+  "g4mp-cards__grid--3",
+  "g4mp-cards__grid--4",
+  "g4mp-cards__grid--tall",
+  "g4mp-cards__head",
+  "g4mp-collections",
+  "g4mp-contact",
+  "g4mp-contact__copy",
+  "g4mp-contact__grid",
+  "g4mp-contact__item",
+  "g4mp-contact__label",
+  "g4mp-contact__list",
+  "g4mp-contact__value",
+  "g4mp-cta",
+  "g4mp-cta__body",
+  "g4mp-cta__inner",
+  "g4mp-cta__sub",
+  "g4mp-cta__title",
+  "g4mp-empty",
+  "g4mp-empty__box",
+  "g4mp-empty__field",
+  "g4mp-empty__type",
+  "g4mp-ext",
+  "g4mp-eyebrow",
+  "g4mp-fact",
+  "g4mp-fact__label",
+  "g4mp-fact__value",
+  "g4mp-facts",
+  "g4mp-facts__list",
+  "g4mp-faq",
+  "g4mp-faq__a",
+  "g4mp-faq__inner",
+  "g4mp-faq__item",
+  "g4mp-faq__list",
+  "g4mp-faq__q",
+  "g4mp-faq__qt",
+  "g4mp-faq__sign",
+  "g4mp-feature",
+  "g4mp-feature--media",
+  "g4mp-feature__body",
+  "g4mp-feature__img",
+  "g4mp-feature__no",
+  "g4mp-feature__text",
+  "g4mp-feature__title",
+  "g4mp-features",
+  "g4mp-features__list",
+  "g4mp-features__list--2",
+  "g4mp-features__list--3",
+  "g4mp-grid",
+  "g4mp-grid__cap",
+  "g4mp-grid__cell",
+  "g4mp-grid__fig",
+  "g4mp-grid__head",
+  "g4mp-grid__items",
+  "g4mp-grid__items--1",
+  "g4mp-grid__items--2",
+  "g4mp-grid__items--3",
+  "g4mp-grid__items--captions",
+  "g4mp-grid__subcap",
+  "g4mp-head",
+  "g4mp-head--left",
+  "g4mp-hero",
+  "g4mp-hero-split",
+  "g4mp-hero-split__body",
+  "g4mp-hero-split__copy",
+  "g4mp-hero-split__grid",
+  "g4mp-hero-split__img",
+  "g4mp-hero-split__media",
+  "g4mp-hero-split__title",
+  "g4mp-hero__body",
+  "g4mp-hero__box",
+  "g4mp-hero__fallback",
+  "g4mp-hero__img",
+  "g4mp-hero__inner",
+  "g4mp-hero__scrim",
+  "g4mp-img",
+  "g4mp-inner",
+  "g4mp-link",
+  "g4mp-logo",
+  "g4mp-logos",
+  "g4mp-logos__link",
+  "g4mp-logos__list",
+  "g4mp-logos__title",
+  "g4mp-product",
+  "g4mp-product__cat",
+  "g4mp-product__frame",
+  "g4mp-product__img",
+  "g4mp-product__name",
+  "g4mp-products",
+  "g4mp-products__grid",
+  "g4mp-quote",
+  "g4mp-quote--solo",
+  "g4mp-quote__avatar",
+  "g4mp-quote__by",
+  "g4mp-quote__name",
+  "g4mp-quote__role",
+  "g4mp-quote__text",
+  "g4mp-quotes",
+  "g4mp-quotes__grid",
+  "g4mp-quotes__grid--2",
+  "g4mp-quotes__grid--3",
+  "g4mp-rich",
+  "g4mp-section",
+  "g4mp-section--joined",
+  "g4mp-story",
+  "g4mp-story--left",
+  "g4mp-story__copy",
+  "g4mp-story__grid",
+  "g4mp-story__img",
+  "g4mp-story__media",
+  "g4mp-subtitle",
+  "g4mp-text",
+  "g4mp-text__inner",
+  "g4mp-title",
+  "g4mp-video",
+  "g4mp-video__caption",
+  "g4mp-video__frame",
+  "g4mp-video__inner"
+];
+var BUTTON_FIELD = "button";
+var optionAttr = (key) => `data-go4-${key.replace(/[._]/g, "-")}`;
+var OPTION_KINDS = /* @__PURE__ */ new Set(["choice", "toggle", "number", "collection"]);
+var optionFields = (entry) => entry.fields.filter((f2) => OPTION_KINDS.has(f2.kind));
+var itemListAttr = (entry) => {
+  const f2 = entry.items?.fields;
+  return f2 && f2.length === 1 && (f2[0].kind === "collection" || f2[0].kind === "product") ? `data-go4-${entry.resolved}` : void 0;
+};
+var CONTRACT_ATTRIBUTES = (() => {
+  const names = new Set(Object.values(FILE_ATTR));
+  for (const e of SECTION_CATALOG) {
+    if (e.variants) names.add(optionAttr("variant"));
+    for (const f2 of optionFields(e)) names.add(optionAttr(f2.key));
+    const list = itemListAttr(e);
+    if (list) names.add(list);
+  }
+  return [...names].sort();
+})();
+var own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+function optionValue(config, key) {
+  let v = config;
+  for (const part of key.split(".")) {
+    v = v && typeof v === "object" && own(v, part) ? v[part] : void 0;
+  }
+  return v;
+}
+function sectionFileAttrs(section, hidden) {
+  const entry = SECTION_CATALOG.find((e) => e.type === section.type);
+  const out = { [FILE_ATTR.section]: section.type };
+  if (hidden) out[FILE_ATTR.hidden] = "";
+  if (!entry) return out;
+  const config = section.config;
+  if (entry.variants && typeof config.variant === "string") out[optionAttr("variant")] = config.variant;
+  for (const f2 of optionFields(entry)) {
+    const v = optionValue(config, f2.key);
+    if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") out[optionAttr(f2.key)] = String(v);
+  }
+  const list = itemListAttr(entry);
+  if (list && entry.items) {
+    const key = entry.items.fields[0].key;
+    const ids = (section.config.items ?? []).map((i) => i[key]).filter((id) => typeof id === "string");
+    if (ids.length) out[list] = ids.join(",");
+  }
+  return out;
+}
+function linkFileAttrs(link) {
+  if (!link) return {};
+  const out = { [FILE_ATTR.linkKind]: String(link.kind) };
+  if (link.kind !== "external" && typeof link.id === "string") out[FILE_ATTR.linkId] = link.id;
+  return out;
+}
+var KIND_NOTE = {
+  richtext: "formatted text",
+  image: "image from the library",
+  media: "image or video from the library",
+  video: "video from the library"
+};
+function describeField(f2) {
+  const note = KIND_NOTE[f2.kind];
+  const limit = f2.maxChars ? ` max ${f2.maxChars} chars` : "";
+  return `${f2.key}${note ? ` (${note})` : ""}${limit}`;
+}
+function describeEntry(e) {
+  const parts = [];
+  const contentFields = e.fields.filter((f2) => !OPTION_KINDS.has(f2.kind) && !["alt", "label", "link"].includes(f2.key));
+  if (contentFields.length) parts.push(`fields: ${contentFields.map(describeField).join(", ")}`);
+  if (e.buttons) parts.push(`buttons ${e.buttons.min} to ${e.buttons.max} (label max ${TEXT_LIMITS.buttonLabel} chars)`);
+  const options = [];
+  if (e.variants) options.push(`${optionAttr("variant")}: ${e.variants.join(" | ")}`);
+  for (const f2 of optionFields(e)) {
+    options.push(`${optionAttr(f2.key)}${f2.options ? `: ${f2.options.join(" | ")}` : f2.kind === "toggle" ? ": true | false" : f2.kind === "number" ? ": number" : ": id"}`);
+  }
+  const list = itemListAttr(e);
+  if (list) options.push(`${list}: ids separated by commas, in display order`);
+  if (options.length) parts.push(`options: ${options.join("; ")}`);
+  if (e.items && !list) {
+    const fields = e.items.fields.filter((f2) => f2.key !== "alt").map(describeField).join(", ");
+    parts.push(`items ${e.items.min} to ${e.items.max}: ${fields}`);
+  }
+  const from = e.resolved ? " Content comes from go4 data; only the title, text and options are read." : "";
+  return `- ${e.type} (${e.group}). ${parts.join(". ")}.${from}`;
+}
+function pageFileInstructions() {
+  const lines = [
+    `go4 landing page file, format ${CONTRACT_VERSION}.`,
+    "",
+    "This file is one landing page of a brand on go4, written as HTML. Edit it with an AI",
+    "assistant and import it back in go4 (Code, Import). go4 reads the page back into its",
+    "components and saves it as a draft; it never stores or shows this HTML.",
+    "",
+    "You may:",
+    "- change the text of elements with data-go4-field;",
+    "- use bold, italic, underline, paragraphs and line breaks in formatted text",
+    "  (strong, em, u, p, br) and links (a) inside it;",
+    "- reorder, remove and add sections (data-go4-section) of the components listed below;",
+    "  to add one, copy a section of the same component and change its text;",
+    "- add and remove items (data-go4-item) within the limits below;",
+    "- change the alt text of images and reorder ids in the option lists.",
+    "",
+    "Do not:",
+    "- change or remove data-go4 attributes, ids or file addresses;",
+    "- add images from other addresses or paste image data: images come only from the",
+    "  brand's media library in go4 (data-go4-media-id); upload new images there;",
+    "- add scripts, styles, classes, forms, frames or other markup: import ignores them;",
+    "- write content for sections that show go4 data (collections, products, contact).",
+    "",
+    "Links: a link to go4 content keeps data-go4-link-kind and data-go4-link-id. A link to",
+    "another website is a plain a href with https, mailto or tel; go4 asks to confirm every",
+    "new external link after import.",
+    "",
+    "Text over its limit is imported with a warning and must be shortened before publishing.",
+    "Items over the maximum are dropped.",
+    "",
+    "Components (data-go4-section):",
+    ...SECTION_CATALOG.map(describeEntry)
+  ];
+  return lines.join("\n").replace(/-{2,}/g, "-");
+}
+
 // src/labels.ts
 var DEFAULT_LABELS = {
   /** Component names — the empty state in `editorMode`. */
@@ -132,14 +530,14 @@ var LANDING_LINK_KINDS = [
   "register"
 ];
 var PORTAL_VIEW_KEY = /^[a-z0-9][a-z0-9_-]{0,63}$/;
-var own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+var own2 = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 function normalizeLink(raw) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const r = raw;
-  const kind = own(r, "kind") ? r.kind : void 0;
+  const kind = own2(r, "kind") ? r.kind : void 0;
   if (typeof kind !== "string" || !LANDING_LINK_KINDS.includes(kind)) return null;
   const out = { kind };
-  const id = own(r, "id") ? r.id : void 0;
+  const id = own2(r, "id") ? r.id : void 0;
   if (kind === "collection" || kind === "product") {
     if (!isUuid(id)) return null;
     out.id = id.toLowerCase();
@@ -148,12 +546,12 @@ function normalizeLink(raw) {
     out.id = id;
   } else if (kind === "external") {
     const url = safeHref(typeof r.url === "string" ? r.url : null);
-    if (!url || !own(r, "url")) return null;
+    if (!url || !own2(r, "url")) return null;
     out.url = url;
   }
-  if (own(r, "path") && typeof r.path === "string") out.path = r.path;
-  if (own(r, "available") && typeof r.available === "boolean") out.available = r.available;
-  if (own(r, "reason") && typeof r.reason === "string") out.reason = r.reason;
+  if (own2(r, "path") && typeof r.path === "string") out.path = r.path;
+  if (own2(r, "available") && typeof r.available === "boolean") out.available = r.available;
+  if (own2(r, "reason") && typeof r.reason === "string") out.reason = r.reason;
   return out;
 }
 function ctaLink(cta) {
@@ -192,17 +590,17 @@ function legacyCta(button) {
 }
 
 // src/richText.ts
-var own2 = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+var own3 = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 function normalizeFragment(raw) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const r = raw;
-  const text = own2(r, "text") ? r.text : void 0;
+  const text = own3(r, "text") ? r.text : void 0;
   if (typeof text !== "string" || text === "") return null;
   const f2 = { text };
-  if (own2(r, "bold") && r.bold === true) f2.bold = true;
-  if (own2(r, "italic") && r.italic === true) f2.italic = true;
-  if (own2(r, "underline") && r.underline === true) f2.underline = true;
-  const link = own2(r, "link") ? normalizeLink(r.link) : null;
+  if (own3(r, "bold") && r.bold === true) f2.bold = true;
+  if (own3(r, "italic") && r.italic === true) f2.italic = true;
+  if (own3(r, "underline") && r.underline === true) f2.underline = true;
+  const link = own3(r, "link") ? normalizeLink(r.link) : null;
   if (link) f2.link = link;
   return f2;
 }
@@ -251,7 +649,7 @@ function decodeEntities(s) {
       return n > 0 && n <= 1114111 && !(n >= 55296 && n <= 57343) ? String.fromCodePoint(n) : "";
     }
     const k = e.toLowerCase();
-    return own2(NAMED, k) ? NAMED[k] : m;
+    return own3(NAMED, k) ? NAMED[k] : m;
   });
 }
 var DROP_WITH_CONTENT = /* @__PURE__ */ new Set([
@@ -421,7 +819,7 @@ function richTextFromHtml(html) {
       flush();
       continue;
     }
-    if (tag === "a" || own2(MARKS, tag)) {
+    if (tag === "a" || own3(MARKS, tag)) {
       if (closing) {
         for (let k = stack.length - 1; k >= 0; k--) {
           if (stack[k].tag === tag) {
@@ -471,9 +869,9 @@ function richTextToHtml(value) {
 }
 
 // src/normalize.ts
-var own3 = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+var own4 = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 var isObj = (v) => !!v && typeof v === "object" && !Array.isArray(v);
-var get = (o, k) => isObj(o) && own3(o, k) ? o[k] : void 0;
+var get = (o, k) => isObj(o) && own4(o, k) ? o[k] : void 0;
 var arr = (v) => Array.isArray(v) ? v : [];
 function str(v) {
   if (typeof v === "string") return v.trim() ? v : void 0;
@@ -548,7 +946,7 @@ function normalizeButton(raw) {
   return { label, link: normalizeLink(get(raw, "link")) };
 }
 function buttonsField(config, max, legacyCta2) {
-  if (own3(config, "buttons")) {
+  if (own4(config, "buttons")) {
     const list = arr(config.buttons).map(normalizeButton).filter((b) => !!b);
     return list.length ? list.slice(0, max) : void 0;
   }
@@ -566,27 +964,27 @@ function items(v, fn) {
 }
 var galleryItem = (raw) => {
   if (!isObj(raw)) return void 0;
-  const media = own3(raw, "media") ? normalizeMedia(raw.media) : isImage(raw) ? normalizeMedia(raw) : void 0;
+  const media = own4(raw, "media") ? normalizeMedia(raw.media) : isImage(raw) ? normalizeMedia(raw) : void 0;
   if (!media) return void 0;
   return clean({ media, caption: str(get(raw, "caption")), subcaption: str(get(raw, "subcaption")) });
 };
 var cardItem = (raw) => {
   if (!isObj(raw)) return void 0;
   const legacy = get(raw, "cta");
-  const media = own3(raw, "media") ? normalizeMedia(raw.media) : normalizeMedia({ ...pick(raw, ["file_url", "mobile_file_url", "alt", "width", "height"]), media_type: "image" });
-  const link = own3(raw, "link") ? normalizeLink(raw.link) : isObj(legacy) ? normalizeLink(ctaLink(legacy)) : null;
+  const media = own4(raw, "media") ? normalizeMedia(raw.media) : normalizeMedia({ ...pick(raw, ["file_url", "mobile_file_url", "alt", "width", "height"]), media_type: "image" });
+  const link = own4(raw, "link") ? normalizeLink(raw.link) : isObj(legacy) ? normalizeLink(ctaLink(legacy)) : null;
   const item = clean({
     title: str(get(raw, "title")),
     body: str(get(raw, "body")),
     media,
     link: link ?? void 0
   });
-  if (!own3(raw, "link") && isObj(legacy)) LEGACY_CTA.set(item, legacy);
+  if (!own4(raw, "link") && isObj(legacy)) LEGACY_CTA.set(item, legacy);
   return item.title || item.body || item.media || item.link || LEGACY_CTA.has(item) ? item : void 0;
 };
 function pick(o, keys) {
   const out = {};
-  for (const k of keys) if (own3(o, k)) out[k] = o[k];
+  for (const k of keys) if (own4(o, k)) out[k] = o[k];
   return out;
 }
 var idItem = (key) => (raw) => {
@@ -766,7 +1164,7 @@ function normalizeSection(raw) {
   if (!isObj(raw)) return null;
   const rawType = get(raw, "type");
   if (typeof rawType !== "string") return null;
-  const legacyType = own3(LEGACY_TYPES, rawType);
+  const legacyType = own4(LEGACY_TYPES, rawType);
   const type = legacyType ? LEGACY_TYPES[rawType] : oneOf(rawType, SECTION_TYPES);
   if (!type) return null;
   const config = normalizeConfig(type, isObj(raw.config) ? raw.config : {}, raw, legacyType);
@@ -921,16 +1319,17 @@ function hasHead(s) {
   if (s.type === "facts") return false;
   return headText(s);
 }
-var visibleSorted = (sections) => sections.map((s, i) => ({ s, i })).filter(({ s }) => s.is_visible).sort((a, b) => a.s.order_index - b.s.order_index || a.i - b.i).map(({ s }) => s);
-function planPage(raw, resolveHref) {
+var visibleSorted = (sections, includeHidden = false) => sections.map((s, i) => ({ s, i })).filter(({ s }) => includeHidden || s.is_visible).sort((a, b) => a.s.order_index - b.s.order_index || a.i - b.i).map(({ s }) => s);
+function planPage(raw, resolveHref, includeHidden = false) {
   const sections = visibleSorted(
-    (Array.isArray(raw) ? raw : []).map(normalizeSection).filter((s) => !!s)
+    (Array.isArray(raw) ? raw : []).map(normalizeSection).filter((s) => !!s),
+    includeHidden
   );
   let prev = null;
   let h1Used = false;
   let firstUsed = false;
   return sections.map((section) => {
-    const drawn = hasContent(section, resolveHref);
+    const drawn = section.is_visible && hasContent(section, resolveHref);
     const h1 = drawn && !h1Used && !!sectionTitle(section);
     const joined = drawn && !!prev && !hasHead(section) && surfaceOf(section) === surfaceOf(prev);
     const first = drawn && !firstUsed;
@@ -950,7 +1349,8 @@ var PageContext = createContext({
   forceMobile: false,
   transform: { fn: (url) => url, resizes: false },
   labels: DEFAULT_LABELS,
-  editorMode: false
+  editorMode: false,
+  fileMode: false
 });
 var usePage = () => useContext(PageContext);
 var SectionContext = createContext({
@@ -964,6 +1364,18 @@ function cx(...parts) {
   return parts.filter(Boolean).join(" ");
 }
 var SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/;
+function useField() {
+  const { fileMode } = usePage();
+  return (name) => fileMode ? { [FILE_ATTR.field]: name } : {};
+}
+function useItem() {
+  const { fileMode } = usePage();
+  return fileMode ? { [FILE_ATTR.item]: "" } : {};
+}
+function useIgnore() {
+  const { fileMode } = usePage();
+  return fileMode ? { [FILE_ATTR.ignore]: "" } : {};
+}
 function Frame({ className, children }) {
   const page = usePage();
   const s = useContext(SectionContext);
@@ -973,14 +1385,17 @@ function Frame({ className, children }) {
     {
       className: cx(className, s.joined && "g4mp-section--joined"),
       "data-section-id": id,
+      hidden: page.fileMode && s.hidden ? true : void 0,
+      ...page.fileMode ? s.fileAttrs : void 0,
       onClick: id && page.onSectionClick ? () => page.onSectionClick?.(id) : void 0,
       children
     }
   );
 }
-function Title({ className, children }) {
+function Title({ className, children, field = "title" }) {
   const { h1 } = useContext(SectionContext);
-  return h1 ? /* @__PURE__ */ jsx("h1", { className, children }) : /* @__PURE__ */ jsx("h2", { className, children });
+  const f2 = useField()(field);
+  return h1 ? /* @__PURE__ */ jsx("h1", { className, ...f2, children }) : /* @__PURE__ */ jsx("h2", { className, ...f2, children });
 }
 var SLOTS = {
   HERO: { width: 960, srcset: [640, 960, 1440, 1920, 2560], sizes: "100vw" },
@@ -996,9 +1411,10 @@ function Img({
   media,
   slot,
   alt: alt2,
-  className
+  className,
+  field = "media"
 }) {
-  const { forceMobile, transform } = usePage();
+  const { forceMobile, transform, fileMode } = usePage();
   const { first } = useContext(SectionContext);
   const desktop = safeImgSrc(media?.file_url);
   const mobile = safeImgSrc(media?.mobile_file_url);
@@ -1007,13 +1423,15 @@ function Img({
   const src = (u) => transform.fn(u, slot.width);
   const srcSet = (u) => transform.resizes ? slot.srcset.map((w) => `${transform.fn(u, w)} ${w}w`).join(", ") : void 0;
   const props = {
-    alt: alt2,
+    // File mode: the brand's own alt only — a fallback (title, caption) is not content of the image.
+    alt: fileMode ? (media?.alt ?? "").trim() : alt2,
     className,
     width: safeDimension(media?.width),
     height: safeDimension(media?.height),
     loading: first ? void 0 : "lazy",
     decoding: "async",
-    sizes: transform.resizes ? slot.sizes : void 0
+    sizes: transform.resizes ? slot.sizes : void 0,
+    ...fileMode ? mediaFileAttrs(media, field) : {}
   };
   if (forceMobile) {
     const u = mobile || base;
@@ -1024,13 +1442,24 @@ function Img({
     /* @__PURE__ */ jsx("img", { src: src(base), srcSet: srcSet(base), ...props })
   ] });
 }
+function mediaFileAttrs(media, field) {
+  const out = { [FILE_ATTR.field]: field };
+  if (media?.media_id) out[FILE_ATTR.mediaId] = media.media_id;
+  if (media?.mobile_media_id) out[FILE_ATTR.mobileMediaId] = media.mobile_media_id;
+  if (media?.source_media_id) out[FILE_ATTR.sourceMediaId] = media.source_media_id;
+  return out;
+}
 var altOf = (m, fallback) => (m?.alt ?? fallback ?? "").trim();
-var ExitMark = () => /* @__PURE__ */ jsx("span", { className: "g4mp-ext", "aria-hidden": "true", children: "\u2197" });
+function ExitMark() {
+  const ignore = useIgnore();
+  return /* @__PURE__ */ jsx("span", { className: "g4mp-ext", "aria-hidden": "true", ...ignore, children: "\u2197" });
+}
 function useAnchorProps() {
-  const { onLinkClick } = usePage();
+  const { onLinkClick, fileMode } = usePage();
   return (target) => ({
     href: target.href,
     ...target.external ? { rel: "noopener noreferrer nofollow", target: "_blank" } : {},
+    ...fileMode ? linkFileAttrs(target.link) : {},
     onClick: onLinkClick ? (e) => onLinkClick(e, target.link) : void 0
   });
 }
@@ -1043,15 +1472,19 @@ var BUTTON_CLASS = {
 function Buttons({ buttons, variants }) {
   const page = usePage();
   const anchor = useAnchorProps();
-  const list = drawnButtons(buttons, page.resolveHref).slice(0, variants.length);
+  const field = useField()("button");
+  const list = (page.fileMode ? (buttons ?? []).filter((b) => b.label.trim()).map((button) => ({ button, target: resolveTarget(button.link, page.resolveHref) })) : drawnButtons(buttons, page.resolveHref)).slice(0, variants.length);
   if (!list.length) return null;
   return /* @__PURE__ */ jsx("div", { className: "g4mp-btns", children: list.map(({ button, target }, i) => {
     const className = BUTTON_CLASS[variants[i]];
     if (target) {
-      return /* @__PURE__ */ jsxs("a", { className, ...anchor(target), children: [
+      return /* @__PURE__ */ jsxs("a", { className, ...anchor(target), ...field, children: [
         button.label,
         target.external && /* @__PURE__ */ jsx(ExitMark, {})
       ] }, i);
+    }
+    if (page.fileMode) {
+      return /* @__PURE__ */ jsx("a", { className, ...field, children: button.label }, i);
     }
     return /* @__PURE__ */ jsx(
       "button",
@@ -1072,20 +1505,21 @@ function Lines({ text }) {
     p
   ] }, i)) });
 }
-function RichTextView({ value, className }) {
-  const { resolveHref } = usePage();
+function RichTextView({ value, className, field = "body" }) {
+  const { resolveHref, fileMode } = usePage();
   const anchor = useAnchorProps();
-  if (typeof value === "string") {
+  const f2 = useField()(field);
+  if (typeof value === "string" && !fileMode) {
     return value.trim() ? /* @__PURE__ */ jsx("p", { className, children: value }) : null;
   }
   const paras = richParagraphs(value);
   if (!paras.length) return null;
-  return /* @__PURE__ */ jsx("div", { className: cx(className, "g4mp-rich"), children: paras.map((p, i) => /* @__PURE__ */ jsx("p", { children: p.map((f2, j) => {
-    let node = f2.text.includes("\n") ? /* @__PURE__ */ jsx(Lines, { text: f2.text }) : f2.text;
-    if (f2.underline) node = /* @__PURE__ */ jsx("u", { children: node });
-    if (f2.italic) node = /* @__PURE__ */ jsx("em", { children: node });
-    if (f2.bold) node = /* @__PURE__ */ jsx("strong", { children: node });
-    const target = resolveTarget(f2.link, resolveHref);
+  return /* @__PURE__ */ jsx("div", { className: cx(className, "g4mp-rich"), ...f2, children: paras.map((p, i) => /* @__PURE__ */ jsx("p", { children: p.map((f3, j) => {
+    let node = f3.text.includes("\n") ? /* @__PURE__ */ jsx(Lines, { text: f3.text }) : f3.text;
+    if (f3.underline) node = /* @__PURE__ */ jsx("u", { children: node });
+    if (f3.italic) node = /* @__PURE__ */ jsx("em", { children: node });
+    if (f3.bold) node = /* @__PURE__ */ jsx("strong", { children: node });
+    const target = resolveTarget(f3.link, resolveHref);
     if (target) {
       node = /* @__PURE__ */ jsxs("a", { className: "g4mp-link", ...anchor(target), children: [
         node,
@@ -1107,9 +1541,10 @@ function Copy({
   subtitleClass = "g4mp-subtitle",
   bodyClass = "g4mp-body"
 }) {
+  const field = useField();
   return /* @__PURE__ */ jsxs2(Fragment3, { children: [
     has(title2) && /* @__PURE__ */ jsx2(Title, { className: titleClass, children: title2 }),
-    has(subtitle2) && /* @__PURE__ */ jsx2("p", { className: subtitleClass, children: subtitle2 }),
+    has(subtitle2) && /* @__PURE__ */ jsx2("p", { className: subtitleClass, ...field("subtitle"), children: subtitle2 }),
     /* @__PURE__ */ jsx2(RichTextView, { value: body2, className: bodyClass })
   ] });
 }
@@ -1122,21 +1557,24 @@ function Tile({
   title: title2,
   lines,
   target,
-  onLegacyClick
+  onLegacyClick,
+  lineFields = []
 }) {
   const anchor = useAnchorProps();
+  const field = useField();
+  const item = useItem();
   const legacy = !target && !!onLegacyClick;
   const TitleTag = legacy ? "span" : "h3";
   const hasImg = !!(media?.file_url || media?.mobile_file_url);
   const inner = /* @__PURE__ */ jsxs3(Fragment4, { children: [
     hasImg ? /* @__PURE__ */ jsx3(Img, { media, slot: SLOTS.GRID, alt: alt2, className: "g4mp-img g4mp-card__img" }) : /* @__PURE__ */ jsx3("span", { className: "g4mp-card__fallback" }),
     (title2 || lines.length > 0) && /* @__PURE__ */ jsxs3("span", { className: "g4mp-card__overlay", children: [
-      title2 && /* @__PURE__ */ jsx3(TitleTag, { className: "g4mp-card__title", children: title2 }),
-      lines.map((l, i) => /* @__PURE__ */ jsx3("span", { className: "g4mp-card__sub", children: l }, i))
+      title2 && /* @__PURE__ */ jsx3(TitleTag, { className: "g4mp-card__title", ...field("title"), children: title2 }),
+      lines.map((l, i) => /* @__PURE__ */ jsx3("span", { className: "g4mp-card__sub", ...lineFields[i] ? field(lineFields[i]) : {}, children: l }, i))
     ] })
   ] });
   if (target) {
-    return /* @__PURE__ */ jsxs3("a", { className: "g4mp-card g4mp-card--link", ...anchor(target), children: [
+    return /* @__PURE__ */ jsxs3("a", { className: "g4mp-card g4mp-card--link", ...anchor(target), ...item, ...field("link"), children: [
       inner,
       target.external && /* @__PURE__ */ jsx3(ExitMark, {})
     ] });
@@ -1144,7 +1582,7 @@ function Tile({
   if (legacy) {
     return /* @__PURE__ */ jsx3("button", { type: "button", className: "g4mp-card g4mp-card--link", onClick: onLegacyClick, children: inner });
   }
-  return /* @__PURE__ */ jsx3("div", { className: "g4mp-card", children: inner });
+  return /* @__PURE__ */ jsx3("div", { className: "g4mp-card", ...item, children: inner });
 }
 var CARD_GRID_CLASS = {
   2: "g4mp-cards__grid--2",
@@ -1171,7 +1609,8 @@ function Cards({ section }) {
           title: item.title,
           lines: typeof item.body === "string" && has(item.body) ? [item.body] : [],
           target: resolveTarget(item.link, page.resolveHref),
-          onLegacyClick: !page.resolveHref && legacy ? () => page.onCtaClick?.(legacy) : void 0
+          onLegacyClick: !page.resolveHref && legacy ? () => page.onCtaClick?.(legacy) : void 0,
+          lineFields: ["body"]
         },
         i
       );
@@ -1257,9 +1696,11 @@ function Cta({ section }) {
 // src/sections/Facts.tsx
 import { jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
 function Facts({ section }) {
-  return /* @__PURE__ */ jsx8(Frame, { className: "g4mp-section g4mp-facts", children: /* @__PURE__ */ jsx8("div", { className: "g4mp-inner", children: /* @__PURE__ */ jsx8("ul", { className: "g4mp-facts__list", children: drawnItems(section).map((it, i) => /* @__PURE__ */ jsxs8("li", { className: "g4mp-fact", children: [
-    /* @__PURE__ */ jsx8("span", { className: "g4mp-fact__value", children: it.value }),
-    has(it.label) && /* @__PURE__ */ jsx8("span", { className: "g4mp-fact__label", children: it.label })
+  const field = useField();
+  const item = useItem();
+  return /* @__PURE__ */ jsx8(Frame, { className: "g4mp-section g4mp-facts", children: /* @__PURE__ */ jsx8("div", { className: "g4mp-inner", children: /* @__PURE__ */ jsx8("ul", { className: "g4mp-facts__list", children: drawnItems(section).map((it, i) => /* @__PURE__ */ jsxs8("li", { className: "g4mp-fact", ...item, children: [
+    /* @__PURE__ */ jsx8("span", { className: "g4mp-fact__value", ...field("value"), children: it.value }),
+    has(it.label) && /* @__PURE__ */ jsx8("span", { className: "g4mp-fact__label", ...field("label"), children: it.label })
   ] }, i)) }) }) });
 }
 
@@ -1267,14 +1708,17 @@ function Facts({ section }) {
 import { jsx as jsx9, jsxs as jsxs9 } from "react/jsx-runtime";
 function Faq({ section }) {
   const c = section.config;
+  const field = useField();
+  const item = useItem();
+  const ignore = useIgnore();
   return /* @__PURE__ */ jsx9(Frame, { className: "g4mp-section g4mp-faq", children: /* @__PURE__ */ jsxs9("div", { className: "g4mp-faq__inner", children: [
     has(c.title) && /* @__PURE__ */ jsx9(Title, { className: "g4mp-title", children: c.title }),
-    /* @__PURE__ */ jsx9("div", { className: "g4mp-faq__list", children: drawnItems(section).map((it, i) => /* @__PURE__ */ jsxs9("details", { className: "g4mp-faq__item", children: [
+    /* @__PURE__ */ jsx9("div", { className: "g4mp-faq__list", children: drawnItems(section).map((it, i) => /* @__PURE__ */ jsxs9("details", { className: "g4mp-faq__item", ...item, children: [
       /* @__PURE__ */ jsxs9("summary", { className: "g4mp-faq__q", children: [
-        /* @__PURE__ */ jsx9("h3", { className: "g4mp-faq__qt", children: it.question }),
-        /* @__PURE__ */ jsx9("span", { className: "g4mp-faq__sign", "aria-hidden": "true" })
+        /* @__PURE__ */ jsx9("h3", { className: "g4mp-faq__qt", ...field("question"), children: it.question }),
+        /* @__PURE__ */ jsx9("span", { className: "g4mp-faq__sign", "aria-hidden": "true", ...ignore })
       ] }),
-      /* @__PURE__ */ jsx9(RichTextView, { value: it.answer, className: "g4mp-body g4mp-faq__a" })
+      /* @__PURE__ */ jsx9(RichTextView, { value: it.answer, className: "g4mp-body g4mp-faq__a", field: "answer" })
     ] }, i)) })
   ] }) });
 }
@@ -1286,15 +1730,18 @@ function Features({ section }) {
   const c = section.config;
   const items2 = drawnItems(section);
   const cols = items2.length === 2 || items2.length === 4 ? "g4mp-features__list--2" : "g4mp-features__list--3";
+  const field = useField();
+  const item = useItem();
+  const ignore = useIgnore();
   return /* @__PURE__ */ jsx10(Frame, { className: "g4mp-section g4mp-features", children: /* @__PURE__ */ jsxs10("div", { className: "g4mp-inner", children: [
     has(c.title) && /* @__PURE__ */ jsx10("div", { className: "g4mp-head g4mp-head--left", children: /* @__PURE__ */ jsx10(Title, { className: "g4mp-title", children: c.title }) }),
     items2.length > 0 && /* @__PURE__ */ jsx10("ol", { className: cx("g4mp-features__list", cols), children: items2.map((it, i) => {
       const img = mediaSrc(it.media);
-      return /* @__PURE__ */ jsxs10("li", { className: cx("g4mp-feature", img && "g4mp-feature--media"), children: [
+      return /* @__PURE__ */ jsxs10("li", { className: cx("g4mp-feature", img && "g4mp-feature--media"), ...item, children: [
         img && /* @__PURE__ */ jsx10(Img, { media: it.media, slot: SLOTS.FEATURE, alt: altOf(it.media, it.title), className: "g4mp-img g4mp-feature__img" }),
         /* @__PURE__ */ jsxs10("div", { className: "g4mp-feature__text", children: [
-          /* @__PURE__ */ jsx10("span", { className: "g4mp-feature__no", children: pad2(i + 1) }),
-          has(it.title) && /* @__PURE__ */ jsx10("h3", { className: "g4mp-feature__title", children: it.title }),
+          /* @__PURE__ */ jsx10("span", { className: "g4mp-feature__no", ...ignore, children: pad2(i + 1) }),
+          has(it.title) && /* @__PURE__ */ jsx10("h3", { className: "g4mp-feature__title", ...field("title"), children: it.title }),
           /* @__PURE__ */ jsx10(RichTextView, { value: it.body, className: "g4mp-feature__body" })
         ] })
       ] }, i);
@@ -1315,16 +1762,19 @@ function Gallery({ section }) {
   const items2 = drawnItems(section);
   const n = items2.length;
   const captions = items2.some((i) => has(i.caption) || has(i.subcaption));
+  const field = useField();
+  const item = useItem();
   return /* @__PURE__ */ jsx11(Frame, { className: "g4mp-section g4mp-grid", children: /* @__PURE__ */ jsxs11("div", { className: "g4mp-inner", children: [
     hasCopy(c) && /* @__PURE__ */ jsx11("div", { className: "g4mp-grid__head", children: /* @__PURE__ */ jsx11(Copy, { title: c.title, subtitle: c.subtitle, body: c.body }) }),
-    n > 0 && /* @__PURE__ */ jsx11("div", { className: cx("g4mp-grid__items", COUNT_CLASS[n], captions && "g4mp-grid__items--captions"), children: items2.map((item, i) => {
-      const cell = /* @__PURE__ */ jsx11("div", { className: "g4mp-grid__cell", children: /* @__PURE__ */ jsx11(Img, { media: item.media, slot: n === 1 ? SLOTS.WIDE : SLOTS.GRID, alt: altOf(item.media, item.caption), className: "g4mp-img" }) });
-      if (!has(item.caption) && !has(item.subcaption)) return /* @__PURE__ */ jsx11(Fragment5, { children: cell }, i);
-      return /* @__PURE__ */ jsxs11("figure", { className: "g4mp-grid__fig", children: [
+    n > 0 && /* @__PURE__ */ jsx11("div", { className: cx("g4mp-grid__items", COUNT_CLASS[n], captions && "g4mp-grid__items--captions"), children: items2.map((it, i) => {
+      const plain = !has(it.caption) && !has(it.subcaption);
+      const cell = /* @__PURE__ */ jsx11("div", { className: "g4mp-grid__cell", ...plain ? item : {}, children: /* @__PURE__ */ jsx11(Img, { media: it.media, slot: n === 1 ? SLOTS.WIDE : SLOTS.GRID, alt: altOf(it.media, it.caption), className: "g4mp-img" }) });
+      if (plain) return /* @__PURE__ */ jsx11(Fragment5, { children: cell }, i);
+      return /* @__PURE__ */ jsxs11("figure", { className: "g4mp-grid__fig", ...item, children: [
         cell,
-        /* @__PURE__ */ jsxs11("figcaption", { className: "g4mp-grid__cap", children: [
-          item.caption,
-          has(item.subcaption) && /* @__PURE__ */ jsx11("span", { className: "g4mp-grid__subcap", children: item.subcaption })
+        /* @__PURE__ */ jsxs11("figcaption", { className: "g4mp-grid__cap", ...field("caption"), children: [
+          it.caption,
+          has(it.subcaption) && /* @__PURE__ */ jsx11("span", { className: "g4mp-grid__subcap", ...field("subcaption"), children: it.subcaption })
         ] })
       ] }, i);
     }) })
@@ -1337,7 +1787,8 @@ function Hero({ section }) {
   return section.config.variant === "split" ? /* @__PURE__ */ jsx12(HeroSplit, { section }) : /* @__PURE__ */ jsx12(HeroCover, { section });
 }
 function HeroCover({ section }) {
-  const { transform } = usePage();
+  const { transform, fileMode } = usePage();
+  const field = useField();
   const c = section.config;
   const m = c.media;
   const video = m?.media_type === "video" ? safeImgSrc(m.file_url) : void 0;
@@ -1358,13 +1809,14 @@ function HeroCover({ section }) {
           preload: poster ? "none" : "metadata",
           width: safeDimension(m?.width),
           height: safeDimension(m?.height),
-          "aria-hidden": "true"
+          "aria-hidden": "true",
+          ...fileMode ? mediaFileAttrs(m, "media") : {}
         }
       )
     ) : mediaSrc(m) ? /* @__PURE__ */ jsx12(Img, { media: m, slot: SLOTS.HERO, alt: altOf(m, c.title), className: "g4mp-img g4mp-hero__img" }) : /* @__PURE__ */ jsx12("div", { className: "g4mp-hero__fallback" }),
     /* @__PURE__ */ jsx12("div", { className: "g4mp-hero__scrim" }),
     /* @__PURE__ */ jsx12("div", { className: "g4mp-hero__inner", children: /* @__PURE__ */ jsxs12("div", { className: "g4mp-hero__box", children: [
-      has(c.eyebrow) && /* @__PURE__ */ jsx12("p", { className: "g4mp-eyebrow", children: c.eyebrow }),
+      has(c.eyebrow) && /* @__PURE__ */ jsx12("p", { className: "g4mp-eyebrow", ...field("eyebrow"), children: c.eyebrow }),
       has(c.title) && /* @__PURE__ */ jsx12(Title, { className: "g4mp-title", children: c.title }),
       /* @__PURE__ */ jsx12(RichTextView, { value: c.body, className: "g4mp-hero__body" }),
       /* @__PURE__ */ jsx12(Buttons, { buttons: c.buttons, variants: ["plain", "outline"] })
@@ -1373,11 +1825,12 @@ function HeroCover({ section }) {
 }
 function HeroSplit({ section }) {
   const { resolveHref } = usePage();
+  const field = useField();
   const c = section.config;
   const text = has(c.eyebrow) || has(c.title) || hasRichText(c.body) || drawnButtons(c.buttons, resolveHref).length > 0;
   return /* @__PURE__ */ jsx12(Frame, { className: "g4mp-section g4mp-hero-split", children: /* @__PURE__ */ jsxs12("div", { className: "g4mp-inner g4mp-hero-split__grid", children: [
     text && /* @__PURE__ */ jsxs12("div", { className: "g4mp-hero-split__copy", children: [
-      has(c.eyebrow) && /* @__PURE__ */ jsx12("p", { className: "g4mp-eyebrow", children: c.eyebrow }),
+      has(c.eyebrow) && /* @__PURE__ */ jsx12("p", { className: "g4mp-eyebrow", ...field("eyebrow"), children: c.eyebrow }),
       has(c.title) && /* @__PURE__ */ jsx12(Title, { className: "g4mp-title g4mp-hero-split__title", children: c.title }),
       /* @__PURE__ */ jsx12(RichTextView, { value: c.body, className: "g4mp-hero-split__body" }),
       /* @__PURE__ */ jsx12(Buttons, { buttons: c.buttons, variants: ["primary", "outline-dark"] })
@@ -1389,18 +1842,23 @@ function HeroSplit({ section }) {
 // src/sections/Logos.tsx
 import { jsx as jsx13, jsxs as jsxs13 } from "react/jsx-runtime";
 function Logos({ section }) {
-  const { resolveHref } = usePage();
+  const { resolveHref, fileMode } = usePage();
   const anchor = useAnchorProps();
+  const field = useField();
+  const item = useItem();
   const c = section.config;
   return /* @__PURE__ */ jsx13(Frame, { className: "g4mp-section g4mp-logos", children: /* @__PURE__ */ jsxs13("div", { className: "g4mp-inner", children: [
     has(c.title) && /* @__PURE__ */ jsx13(Title, { className: "g4mp-eyebrow g4mp-logos__title", children: c.title }),
     /* @__PURE__ */ jsx13("ul", { className: "g4mp-logos__list", children: drawnItems(section).map((it, i) => {
       const img = /* @__PURE__ */ jsx13(Img, { media: it.media, slot: SLOTS.LOGO, alt: altOf(it.media, it.name), className: "g4mp-img g4mp-logo" });
       const target = resolveTarget(it.link, resolveHref);
-      return /* @__PURE__ */ jsx13("li", { children: target ? /* @__PURE__ */ jsxs13("a", { className: "g4mp-logos__link", ...anchor(target), children: [
-        img,
-        target.external && /* @__PURE__ */ jsx13(ExitMark, {})
-      ] }) : img }, i);
+      return /* @__PURE__ */ jsxs13("li", { ...item, children: [
+        fileMode && has(it.name) && /* @__PURE__ */ jsx13("span", { hidden: true, ...field("name"), children: it.name }),
+        target ? /* @__PURE__ */ jsxs13("a", { className: "g4mp-logos__link", ...anchor(target), ...field("link"), children: [
+          img,
+          target.external && /* @__PURE__ */ jsx13(ExitMark, {})
+        ] }) : img
+      ] }, i);
     }) })
   ] }) });
 }
@@ -1447,13 +1905,14 @@ function Quotes({ section }) {
 }
 function Quote({ item, solo }) {
   const avatar = mediaSrc(item.avatar);
-  return /* @__PURE__ */ jsxs15("figure", { className: cx("g4mp-quote", solo && "g4mp-quote--solo"), children: [
-    /* @__PURE__ */ jsx15("blockquote", { children: /* @__PURE__ */ jsx15(RichTextView, { value: item.text, className: "g4mp-quote__text" }) }),
+  const field = useField();
+  return /* @__PURE__ */ jsxs15("figure", { className: cx("g4mp-quote", solo && "g4mp-quote--solo"), ...useItem(), children: [
+    /* @__PURE__ */ jsx15("blockquote", { children: /* @__PURE__ */ jsx15(RichTextView, { value: item.text, className: "g4mp-quote__text", field: "text" }) }),
     /* @__PURE__ */ jsxs15("figcaption", { className: "g4mp-quote__by", children: [
-      avatar && /* @__PURE__ */ jsx15(Img, { media: item.avatar, slot: SLOTS.AVATAR, alt: altOf(item.avatar, item.author), className: "g4mp-img g4mp-quote__avatar" }),
+      avatar && /* @__PURE__ */ jsx15(Img, { media: item.avatar, slot: SLOTS.AVATAR, alt: altOf(item.avatar, item.author), className: "g4mp-img g4mp-quote__avatar", field: "avatar" }),
       /* @__PURE__ */ jsxs15("span", { children: [
-        has(item.author) && /* @__PURE__ */ jsx15("span", { className: "g4mp-quote__name", children: item.author }),
-        has(item.role) && /* @__PURE__ */ jsx15("span", { className: "g4mp-quote__role", children: item.role })
+        has(item.author) && /* @__PURE__ */ jsx15("span", { className: "g4mp-quote__name", ...field("author"), children: item.author }),
+        has(item.role) && /* @__PURE__ */ jsx15("span", { className: "g4mp-quote__role", ...field("role"), children: item.role })
       ] })
     ] })
   ] });
@@ -1488,14 +1947,15 @@ function Text({ section }) {
 // src/sections/Video.tsx
 import { jsx as jsx18, jsxs as jsxs18 } from "react/jsx-runtime";
 function Video({ section }) {
-  const { transform } = usePage();
+  const { transform, fileMode } = usePage();
+  const field = useField();
   const c = section.config;
   const src = safeImgSrc(c.media?.file_url);
-  if (!src) return null;
+  if (!src && !fileMode) return null;
   const posterSrc = safeImgSrc(c.media?.poster_url);
   const poster = posterSrc ? transform.fn(posterSrc, 960) : void 0;
   return /* @__PURE__ */ jsx18(Frame, { className: "g4mp-section g4mp-video", children: /* @__PURE__ */ jsxs18("div", { className: "g4mp-inner g4mp-video__inner", children: [
-    /* @__PURE__ */ jsx18("div", { className: "g4mp-video__frame", children: /* @__PURE__ */ jsx18(
+    src && /* @__PURE__ */ jsx18("div", { className: "g4mp-video__frame", children: /* @__PURE__ */ jsx18(
       "video",
       {
         src,
@@ -1504,12 +1964,13 @@ function Video({ section }) {
         poster,
         preload: poster ? "none" : "metadata",
         width: safeDimension(c.media?.width),
-        height: safeDimension(c.media?.height)
+        height: safeDimension(c.media?.height),
+        ...fileMode ? mediaFileAttrs(c.media, "media") : {}
       }
     ) }),
     (has(c.title) || has(c.caption)) && /* @__PURE__ */ jsxs18("div", { className: "g4mp-video__caption", children: [
       has(c.title) && /* @__PURE__ */ jsx18(Title, { className: "g4mp-title", children: c.title }),
-      has(c.caption) && /* @__PURE__ */ jsx18("p", { className: "g4mp-body", children: c.caption })
+      has(c.caption) && /* @__PURE__ */ jsx18("p", { className: "g4mp-body", ...field("caption"), children: c.caption })
     ] })
   ] }) });
 }
@@ -1524,6 +1985,26 @@ function Empty({ section }) {
     field && /* @__PURE__ */ jsx19("p", { className: "g4mp-empty__field", children: labels.fields[field] })
   ] }) });
 }
+
+// src/sections/FileData.tsx
+import { jsx as jsx20 } from "react/jsx-runtime";
+var CLASS = {
+  collections: "g4mp-section g4mp-cards g4mp-collections",
+  products: "g4mp-section g4mp-products",
+  contact: "g4mp-section g4mp-contact"
+};
+function FileData({ section }) {
+  const c = section.config;
+  return /* @__PURE__ */ jsx20(Frame, { className: CLASS[section.type] ?? "g4mp-section", children: /* @__PURE__ */ jsx20("div", { className: "g4mp-inner", children: /* @__PURE__ */ jsx20(
+    Copy,
+    {
+      title: c.title,
+      subtitle: section.type === "products" ? c.subtitle : void 0,
+      body: section.type === "contact" ? c.body : void 0
+    }
+  ) }) });
+}
+var FILE_DATA_TYPES = /* @__PURE__ */ new Set(["collections", "products", "contact"]);
 
 // src/sections/index.ts
 var SECTION_COMPONENTS = {
@@ -1909,7 +2390,7 @@ a.g4mp-contact__value { color: inherit; text-decoration: underline; text-decorat
 `;
 
 // src/MarketingPage.tsx
-import { jsx as jsx20, jsxs as jsxs20 } from "react/jsx-runtime";
+import { jsx as jsx21, jsxs as jsxs20 } from "react/jsx-runtime";
 function MarketingPage({
   sections,
   resolveHref,
@@ -1922,9 +2403,11 @@ function MarketingPage({
   editorMode = false,
   onSectionClick,
   renderInsertSlot,
-  className
+  className,
+  fileMode = false
 }) {
-  const plan = planPage(sections, resolveHref);
+  if (fileMode) editorMode = false;
+  const plan = planPage(sections, resolveHref, fileMode);
   const host = {
     resolveHref,
     onLinkClick,
@@ -1933,19 +2416,30 @@ function MarketingPage({
     transform: transformImageUrl ? { fn: transformImageUrl, resizes: true } : { fn: (url) => url, resizes: false },
     labels: mergeLabels(labels),
     editorMode,
-    onSectionClick
+    onSectionClick,
+    fileMode
   };
-  return /* @__PURE__ */ jsx20(PageContext.Provider, { value: host, children: /* @__PURE__ */ jsxs20("div", { className: cx("g4mp", forceMobile && "g4mp--mobile", className), children: [
-    injectStyles && /* @__PURE__ */ jsx20("style", { dangerouslySetInnerHTML: { __html: MARKETING_CSS } }),
+  const Root = fileMode ? "main" : "div";
+  const rootAttrs = fileMode ? { [FILE_ATTR.page]: "", [FILE_ATTR.format]: String(CONTRACT_VERSION) } : {};
+  return /* @__PURE__ */ jsx21(PageContext.Provider, { value: host, children: /* @__PURE__ */ jsxs20(Root, { className: cx("g4mp", forceMobile && "g4mp--mobile", className), ...rootAttrs, children: [
+    injectStyles && /* @__PURE__ */ jsx21("style", { dangerouslySetInnerHTML: { __html: MARKETING_CSS } }),
     plan.map((p, i) => {
-      const Component = SECTION_COMPONENTS[p.section.type];
-      const body2 = p.drawn ? /* @__PURE__ */ jsx20(Component, { section: p.section }) : editorMode ? /* @__PURE__ */ jsx20(Empty, { section: p.section }) : null;
+      const Component = fileMode && FILE_DATA_TYPES.has(p.section.type) ? FileData : SECTION_COMPONENTS[p.section.type];
+      const body2 = p.drawn || fileMode ? /* @__PURE__ */ jsx21(Component, { section: p.section }) : editorMode ? /* @__PURE__ */ jsx21(Empty, { section: p.section }) : null;
+      const hidden = !p.section.is_visible;
       return /* @__PURE__ */ jsxs20(Fragment7, { children: [
         renderInsertSlot?.(i),
-        /* @__PURE__ */ jsx20(
+        /* @__PURE__ */ jsx21(
           SectionContext.Provider,
           {
-            value: { id: p.section.id, type: p.section.type, h1: p.h1, first: p.first, joined: p.joined },
+            value: {
+              id: p.section.id,
+              type: p.section.type,
+              h1: p.h1,
+              first: p.first,
+              joined: p.joined,
+              ...fileMode ? { fileAttrs: sectionFileAttrs(p.section, hidden), hidden } : {}
+            },
             children: body2
           }
         )
@@ -1954,131 +2448,6 @@ function MarketingPage({
     renderInsertSlot?.(plan.length)
   ] }) });
 }
-
-// src/catalog.ts
-var TEXT_LIMITS = {
-  eyebrow: 80,
-  title: 80,
-  subtitle: 120,
-  body: 600,
-  heroBody: 300,
-  buttonLabel: 30,
-  alt: 125
-};
-var CATALOG_GROUPS = ["Opening", "Content", "Media", "From go4", "Trust"];
-var L = TEXT_LIMITS;
-var f = (key, kind, maxChars, options) => ({ key, kind, ...maxChars ? { maxChars } : {}, ...options ? { options } : {} });
-var title = f("title", "text", L.title);
-var subtitle = f("subtitle", "text", L.subtitle);
-var body = f("body", "richtext", L.body);
-var alt = f("alt", "text", L.alt);
-var buttonLabel = f("label", "text", L.buttonLabel);
-var CATALOG_VERSION = 1;
-var SECTION_CATALOG = [
-  {
-    type: "hero",
-    group: "Opening",
-    variants: ["cover", "split"],
-    fields: [f("eyebrow", "text", L.eyebrow), title, f("body", "richtext", L.heroBody), f("media", "media"), alt, buttonLabel, f("link", "link")],
-    buttons: { min: 0, max: 2 },
-    crops: { cover: { desktop: "21:9", mobile: "4:5" }, split: { desktop: "4:5", mobile: "4:5" } }
-  },
-  {
-    type: "cta",
-    group: "Opening",
-    fields: [title, body, buttonLabel, f("link", "link")],
-    buttons: { min: 1, max: 2 }
-  },
-  {
-    type: "text_block",
-    group: "Content",
-    fields: [title, subtitle, body, buttonLabel, f("link", "link")],
-    buttons: { min: 0, max: 1 }
-  },
-  {
-    type: "story",
-    group: "Content",
-    fields: [title, subtitle, body, f("media", "image"), alt, f("image_side", "choice", void 0, ["right", "left"]), buttonLabel, f("link", "link")],
-    buttons: { min: 0, max: 1 },
-    crops: { image: { desktop: "4:3", mobile: "4:3" } }
-  },
-  {
-    type: "cards",
-    group: "Content",
-    fields: [title, subtitle, body],
-    items: { min: 2, max: 4, fields: [f("media", "image"), alt, title, f("body", "text"), f("link", "link")] },
-    crops: { image: { desktop: "2:3", mobile: "2:3" } }
-  },
-  {
-    type: "faq",
-    group: "Content",
-    fields: [title],
-    items: { min: 2, max: 12, fields: [f("question", "text"), f("answer", "richtext", L.body)] }
-  },
-  {
-    type: "gallery",
-    group: "Media",
-    fields: [title, body],
-    items: { min: 1, max: 12, fields: [f("media", "image"), alt, f("caption", "text"), f("subcaption", "text")] },
-    crops: { one: { desktop: "21:9", mobile: "16:9" }, many: { desktop: "1:1", mobile: "1:1" } },
-    legacyTypes: ["team", "materials"]
-  },
-  {
-    type: "video",
-    group: "Media",
-    fields: [f("media", "video"), title, f("caption", "text")],
-    crops: { poster: { desktop: "16:9", mobile: "16:9" } }
-  },
-  {
-    type: "collections",
-    group: "From go4",
-    fields: [title, f("mode", "choice", void 0, ["all", "selected"]), f("limit", "number"), f("show_shipping", "toggle")],
-    items: { min: 1, max: 12, fields: [f("collection_id", "collection")] },
-    crops: { cover: { desktop: "2:3", mobile: "2:3" } },
-    resolved: "collections"
-  },
-  {
-    type: "products",
-    group: "From go4",
-    fields: [title, subtitle, f("mode", "choice", void 0, ["selected", "collection"]), f("collection_id", "collection"), f("limit", "number")],
-    items: { min: 2, max: 8, fields: [f("product_id", "product")] },
-    crops: { image: { desktop: "4:5", mobile: "4:5" } },
-    resolved: "products"
-  },
-  {
-    type: "contact",
-    group: "From go4",
-    fields: [title, body, f("show.address", "toggle"), f("show.email", "toggle"), f("show.website", "toggle"), f("show.instagram", "toggle")],
-    resolved: "contact"
-  },
-  {
-    type: "facts",
-    group: "Trust",
-    fields: [],
-    items: { min: 2, max: 4, fields: [f("value", "text"), f("label", "text")] }
-  },
-  {
-    type: "features",
-    group: "Trust",
-    fields: [title],
-    items: { min: 2, max: 6, fields: [title, f("body", "richtext", L.body), f("media", "image"), alt] },
-    crops: { image: { desktop: "3:2", mobile: "3:2" } }
-  },
-  {
-    type: "quotes",
-    group: "Trust",
-    fields: [title],
-    items: { min: 1, max: 6, fields: [f("text", "richtext", L.body), f("author", "text"), f("role", "text"), f("avatar", "image"), alt] },
-    crops: { avatar: { desktop: "1:1", mobile: "1:1" } }
-  },
-  {
-    type: "logos",
-    group: "Trust",
-    fields: [title],
-    items: { min: 3, max: 12, fields: [f("media", "image"), f("name", "text", L.alt), f("link", "link")] }
-  }
-];
-var catalogEntry = (type) => SECTION_CATALOG.find((e) => e.type === type);
 
 // src/structuredData.ts
 function buildStructuredData(sections, opts = {}) {
@@ -2285,9 +2654,14 @@ function sectionsToMarkdown(sections, opts = {}) {
 // src/cssHash.ts
 var MARKETING_CSS_SHA256 = "sha256-hmt2+h9wJHcL9MuS5Ky1Qad3bpk5E266BOauvJ9BxVg=";
 export {
+  BUTTON_FIELD,
   CATALOG_GROUPS,
   CATALOG_VERSION,
+  CONTRACT_ATTRIBUTES,
+  CONTRACT_CLASSES,
+  CONTRACT_VERSION,
   DEFAULT_LABELS,
+  FILE_ATTR,
   LANDING_LINK_KINDS,
   MARKETING_CSS,
   MARKETING_CSS_SHA256,
@@ -2300,11 +2674,15 @@ export {
   ctaLink,
   hasRichText,
   isUuid,
+  itemListAttr,
   jsonLdScriptContent,
   normalizeLink,
   normalizeMedia,
   normalizeRichText,
   normalizeSection,
+  optionAttr,
+  optionFields,
+  pageFileInstructions,
   richTextFromHtml,
   richTextPlain,
   richTextToHtml,

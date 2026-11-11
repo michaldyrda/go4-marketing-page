@@ -17,6 +17,10 @@
       "types": "./dist/data.d.ts",
       "default": "./dist/data.js"
     },
+    "./file": {
+      "types": "./dist/file.d.ts",
+      "default": "./dist/file.js"
+    },
     "./styles.css": "./dist/marketing-page.css"
   },
   "files": [
@@ -25,12 +29,18 @@
   ],
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
-    "build": "npm run clean && node scripts/css.mjs --write-dist && esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --packages=external --jsx=automatic --banner:js='\"use client\";' && esbuild src/data.ts --bundle --format=esm --outfile=dist/data.js --packages=external && node scripts/check-dist.mjs && tsc -p tsconfig.build.json --emitDeclarationOnly",
+    "build": "npm run clean && node scripts/css.mjs --write-dist && esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --packages=external --jsx=automatic --banner:js='\"use client\";' && esbuild src/data.ts --bundle --format=esm --outfile=dist/data.js --packages=external && esbuild src/file.ts --bundle --format=esm --outfile=dist/file.js --packages=external --jsx=automatic && node scripts/check-dist.mjs && tsc -p tsconfig.build.json --emitDeclarationOnly",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
   "peerDependencies": {
-    "react": ">=18"
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
@@ -50,6 +60,9 @@
     "*": {
       "data": [
         "./dist/data.d.ts"
+      ],
+      "file": [
+        "./dist/file.d.ts"
       ]
     }
   }

@@ -14,6 +14,8 @@ export interface PageHost {
     labels: MarketingLabels;
     editorMode: boolean;
     onSectionClick?: (id: string) => void;
+    /** Page file (`renderPageFile`): contract attributes on sections, fields, items, media and links. */
+    fileMode: boolean;
 }
 export declare const PageContext: import("react").Context<PageHost>;
 export declare const usePage: () => PageHost;
@@ -23,21 +25,44 @@ export interface SectionCtx {
     h1: boolean;
     first: boolean;
     joined: boolean;
+    /** File mode: `<section>` attributes (`data-go4-section`, options, hidden). */
+    fileAttrs?: Record<string, string>;
+    /** File mode: section saved as hidden — drawn with `hidden`. */
+    hidden?: boolean;
 }
 export declare const SectionContext: import("react").Context<SectionCtx>;
 export declare function cx(...parts: (string | false | null | undefined)[]): string;
+/** File mode: `data-go4-field` on the element of a field (nothing outside file mode). */
+export declare function useField(): (name: string) => {
+    "data-go4-field": string;
+} | {
+    "data-go4-field"?: undefined;
+};
+/** File mode: `data-go4-item` on the element of an item. */
+export declare function useItem(): {
+    "data-go4-item": string;
+} | {
+    "data-go4-item"?: undefined;
+};
+/** File mode: decoration the import skips (exit mark, numbering). */
+export declare function useIgnore(): {
+    "data-go4-ignore": string;
+} | {
+    "data-go4-ignore"?: undefined;
+};
 /**
- * The `<section>` of every component: adjacency class, and in the editor the
- * `data-section-id` + click hook.
+ * The `<section>` of every component: adjacency class, in the editor the
+ * `data-section-id` + click hook, in the page file the contract attributes.
  */
 export declare function Frame({ className, children }: {
     className: string;
     children: ReactNode;
 }): import("react").JSX.Element;
 /** Section title at the level that follows from its position (h1 once per page, else h2). */
-export declare function Title({ className, children }: {
+export declare function Title({ className, children, field }: {
     className: string;
     children: ReactNode;
+    field?: string;
 }): import("react").JSX.Element;
 export interface Slot {
     /** Intended CSS width handed to the resizer. */
@@ -90,17 +115,21 @@ export declare const SLOTS: {
     };
 };
 /** <img> that swaps to a mobile crop: forced in preview, else viewport-driven. */
-export declare function Img({ media, slot, alt, className, }: {
+export declare function Img({ media, slot, alt, className, field, }: {
     media?: LandingMedia;
     slot: Slot;
     alt: string;
     className?: string;
+    /** File mode: field name of the image (`media`, `avatar`). */
+    field?: string;
 }): import("react").JSX.Element | null;
+/** File mode: field and library ids of an image or video. */
+export declare function mediaFileAttrs(media: LandingMedia | undefined, field: string): Record<string, string>;
 /** Alt text: the brand's own, else the given fallback, else decorative. */
 export declare const altOf: (m: {
     alt?: string;
 } | undefined, fallback?: string) => string;
-export declare const ExitMark: () => import("react").JSX.Element;
+export declare function ExitMark(): import("react").JSX.Element;
 /** Props of an `<a>` for a resolved target (rel/target for external links). */
 export declare function useAnchorProps(): (target: ResolvedTarget) => {
     onClick: ((e: MouseEvent<HTMLAnchorElement>) => void) | undefined;
@@ -121,7 +150,8 @@ export declare function Buttons({ buttons, variants }: {
  * (unchanged from 0.4.x). Paragraphs are `<p>` with `<strong>`, `<em>`, `<u>`,
  * `<a href>` and `<br>` built as elements — content is never parsed as HTML.
  */
-export declare function RichTextView({ value, className }: {
+export declare function RichTextView({ value, className, field }: {
     value?: RichText;
     className: string;
+    field?: string;
 }): import("react").JSX.Element | null;

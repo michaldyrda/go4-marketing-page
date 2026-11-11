@@ -3,6 +3,7 @@ import { Fragment, createContext, useContext } from "react";
 import type { MouseEvent, ReactNode } from "react";
 import { DEFAULT_LABELS } from "./labels";
 import type { MarketingLabels } from "./labels";
+import { FILE_ATTR, linkFileAttrs } from "./contract";
 import { legacyCta } from "./links";
 import { drawnButtons, legacyCtaOf, resolveTarget } from "./model";
 import type { ResolvedTarget } from "./model";
@@ -30,6 +31,8 @@ export interface PageHost {
   labels: MarketingLabels;
   editorMode: boolean;
   onSectionClick?: (id: string) => void;
+  /** Page file (`renderPageFile`): contract attributes on sections, fields, items, media and links. */
+  fileMode: boolean;
 }
 
 export const PageContext = createContext<PageHost>({
@@ -37,6 +40,7 @@ export const PageContext = createContext<PageHost>({
   transform: { fn: (url) => url, resizes: false },
   labels: DEFAULT_LABELS,
   editorMode: false,
+  fileMode: false,
 });
 export const usePage = () => useContext(PageContext);
 
@@ -48,6 +52,10 @@ export interface SectionCtx {
   h1: boolean;
   first: boolean;
   joined: boolean;
+  /** File mode: `<section>` attributes (`data-go4-section`, options, hidden). */
+  fileAttrs?: Record<string, string>;
+  /** File mode: section saved as hidden — drawn with `hidden`. */
+  hidden?: boolean;
 }
 export const SectionContext = createContext<SectionCtx>({
   id: "",
@@ -64,9 +72,27 @@ export function cx(...parts: (string | false | null | undefined)[]) {
 /** Section ids reach the DOM only in the editor, and only in a plain form. */
 const SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/;
 
+/** File mode: `data-go4-field` on the element of a field (nothing outside file mode). */
+export function useField() {
+  const { fileMode } = usePage();
+  return (name: string) => (fileMode ? { [FILE_ATTR.field]: name } : {});
+}
+
+/** File mode: `data-go4-item` on the element of an item. */
+export function useItem() {
+  const { fileMode } = usePage();
+  return fileMode ? { [FILE_ATTR.item]: "" } : {};
+}
+
+/** File mode: decoration the import skips (exit mark, numbering). */
+export function useIgnore() {
+  const { fileMode } = usePage();
+  return fileMode ? { [FILE_ATTR.ignore]: "" } : {};
+}
+
 /**
- * The `<section>` of every component: adjacency class, and in the editor the
- * `data-section-id` + click hook.
+ * The `<section>` of every component: adjacency class, in the editor the
+ * `data-section-id` + click hook, in the page file the contract attributes.
  */
 export function Frame({ className, children }: { className: string; children: ReactNode }) {
   const page = usePage();
@@ -76,6 +102,8 @@ export function Frame({ className, children }: { className: string; children: Re
     <section
       className={cx(className, s.joined && "g4mp-section--joined")}
       data-section-id={id}
+      hidden={page.fileMode && s.hidden ? true : undefined}
+      {...(page.fileMode ? s.fileAttrs : undefined)}
       onClick={id && page.onSectionClick ? () => page.onSectionClick?.(id) : undefined}
     >
       {children}
@@ -84,9 +112,10 @@ export function Frame({ className, children }: { className: string; children: Re
 }
 
 /** Section title at the level that follows from its position (h1 once per page, else h2). */
-export function Title({ className, children }: { className: string; children: ReactNode }) {
+export function Title({ className, children, field = "title" }: { className: string; children: ReactNode; field?: string }) {
   const { h1 } = useContext(SectionContext);
-  return h1 ? <h1 className={className}>{children}</h1> : <h2 className={className}>{children}</h2>;
+  const f = useField()(field);
+  return h1 ? <h1 className={className} {...f}>{children}</h1> : <h2 className={className} {...f}>{children}</h2>;
 }
 
 /* ── images ────────────────────────────────────────────────────────────────── */
@@ -117,13 +146,16 @@ export function Img({
   slot,
   alt,
   className,
+  field = "media",
 }: {
   media?: LandingMedia;
   slot: Slot;
   alt: string;
   className?: string;
+  /** File mode: field name of the image (`media`, `avatar`). */
+  field?: string;
 }) {
-  const { forceMobile, transform } = usePage();
+  const { forceMobile, transform, fileMode } = usePage();
   const { first } = useContext(SectionContext);
   const desktop = safeImgSrc(media?.file_url);
   const mobile = safeImgSrc(media?.mobile_file_url);
@@ -134,13 +166,15 @@ export function Img({
   const srcSet = (u: string) =>
     transform.resizes ? slot.srcset.map((w) => `${transform.fn(u, w)} ${w}w`).join(", ") : undefined;
   const props = {
-    alt,
+    // File mode: the brand's own alt only — a fallback (title, caption) is not content of the image.
+    alt: fileMode ? (media?.alt ?? "").trim() : alt,
     className,
     width: safeDimension(media?.width),
     height: safeDimension(media?.height),
     loading: first ? undefined : ("lazy" as const),
     decoding: "async" as const,
     sizes: transform.resizes ? slot.sizes : undefined,
+    ...(fileMode ? mediaFileAttrs(media, field) : {}),
   };
   // Mobile preview: media queries can't see the frame, so force the crop.
   if (forceMobile) {
@@ -155,23 +189,36 @@ export function Img({
   );
 }
 
+/** File mode: field and library ids of an image or video. */
+export function mediaFileAttrs(media: LandingMedia | undefined, field: string): Record<string, string> {
+  const out: Record<string, string> = { [FILE_ATTR.field]: field };
+  if (media?.media_id) out[FILE_ATTR.mediaId] = media.media_id;
+  if (media?.mobile_media_id) out[FILE_ATTR.mobileMediaId] = media.mobile_media_id;
+  if (media?.source_media_id) out[FILE_ATTR.sourceMediaId] = media.source_media_id;
+  return out;
+}
+
 /** Alt text: the brand's own, else the given fallback, else decorative. */
 export const altOf = (m: { alt?: string } | undefined, fallback?: string) => (m?.alt ?? fallback ?? "").trim();
 
 /* ── links ─────────────────────────────────────────────────────────────────── */
 
-export const ExitMark = () => (
-  <span className="g4mp-ext" aria-hidden="true">
-    ↗
-  </span>
-);
+export function ExitMark() {
+  const ignore = useIgnore();
+  return (
+    <span className="g4mp-ext" aria-hidden="true" {...ignore}>
+      ↗
+    </span>
+  );
+}
 
 /** Props of an `<a>` for a resolved target (rel/target for external links). */
 export function useAnchorProps() {
-  const { onLinkClick } = usePage();
+  const { onLinkClick, fileMode } = usePage();
   return (target: ResolvedTarget) => ({
     href: target.href,
     ...(target.external ? { rel: "noopener noreferrer nofollow", target: "_blank" as const } : {}),
+    ...(fileMode ? linkFileAttrs(target.link) : {}),
     onClick: onLinkClick ? (e: MouseEvent<HTMLAnchorElement>) => onLinkClick(e, target.link) : undefined,
   });
 }
@@ -194,7 +241,13 @@ const BUTTON_CLASS: Record<ButtonVariant, string> = {
 export function Buttons({ buttons, variants }: { buttons?: LandingButton[]; variants: ButtonVariant[] }) {
   const page = usePage();
   const anchor = useAnchorProps();
-  const list = drawnButtons(buttons, page.resolveHref).slice(0, variants.length);
+  const field = useField()("button");
+  // File mode: every labelled button, also one without a target yet (no href).
+  const list = (
+    page.fileMode
+      ? (buttons ?? []).filter((b) => b.label.trim()).map((button) => ({ button, target: resolveTarget(button.link, page.resolveHref) }))
+      : drawnButtons(buttons, page.resolveHref)
+  ).slice(0, variants.length);
   if (!list.length) return null;
   return (
     <div className="g4mp-btns">
@@ -202,9 +255,16 @@ export function Buttons({ buttons, variants }: { buttons?: LandingButton[]; vari
         const className = BUTTON_CLASS[variants[i]];
         if (target) {
           return (
-            <a key={i} className={className} {...anchor(target)}>
+            <a key={i} className={className} {...anchor(target)} {...field}>
               {button.label}
               {target.external && <ExitMark />}
+            </a>
+          );
+        }
+        if (page.fileMode) {
+          return (
+            <a key={i} className={className} {...field}>
+              {button.label}
             </a>
           );
         }
@@ -245,16 +305,18 @@ function Lines({ text }: { text: string }) {
  * (unchanged from 0.4.x). Paragraphs are `<p>` with `<strong>`, `<em>`, `<u>`,
  * `<a href>` and `<br>` built as elements — content is never parsed as HTML.
  */
-export function RichTextView({ value, className }: { value?: RichText; className: string }) {
-  const { resolveHref } = usePage();
+export function RichTextView({ value, className, field = "body" }: { value?: RichText; className: string; field?: string }) {
+  const { resolveHref, fileMode } = usePage();
   const anchor = useAnchorProps();
-  if (typeof value === "string") {
+  const f = useField()(field);
+  // File mode: always paragraphs — the file carries the text as the import reads it back.
+  if (typeof value === "string" && !fileMode) {
     return value.trim() ? <p className={className}>{value}</p> : null;
   }
   const paras = richParagraphs(value);
   if (!paras.length) return null;
   return (
-    <div className={cx(className, "g4mp-rich")}>
+    <div className={cx(className, "g4mp-rich")} {...f}>
       {paras.map((p, i) => (
         <p key={i}>
           {p.map((f, j) => {

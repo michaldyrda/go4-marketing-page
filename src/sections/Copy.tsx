@@ -1,6 +1,6 @@
 import { has } from "../model";
 import { hasRichText } from "../richText";
-import { RichTextView, Title } from "../render";
+import { RichTextView, Title, useField } from "../render";
 import type { RichText } from "../types";
 
 /** True when the title / subtitle / text block draws anything. */
@@ -23,10 +23,11 @@ export function Copy({
   subtitleClass?: string;
   bodyClass?: string;
 }) {
+  const field = useField();
   return (
     <>
       {has(title) && <Title className={titleClass}>{title}</Title>}
-      {has(subtitle) && <p className={subtitleClass}>{subtitle}</p>}
+      {has(subtitle) && <p className={subtitleClass} {...field("subtitle")}>{subtitle}</p>}
       <RichTextView value={body} className={bodyClass} />
     </>
   );

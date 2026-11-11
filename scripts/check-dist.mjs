@@ -10,4 +10,13 @@ if (!/^"use client";/.test(index)) {
   console.error('dist/index.js musi zaczynać się od "use client";');
   process.exit(1);
 }
-console.log("dist: data.js bez Reacta, index.js z \"use client\"");
+if (/react-dom\/server/.test(index)) {
+  console.error("dist/index.js importuje react-dom/server — plik strony jest w wejściu ./file");
+  process.exit(1);
+}
+const file = readFileSync(new URL("../dist/file.js", import.meta.url), "utf8");
+if (!/function renderPageFile/.test(file)) {
+  console.error("dist/file.js bez renderPageFile");
+  process.exit(1);
+}
+console.log("dist: data.js bez Reacta, index.js z \"use client\" i bez react-dom/server, file.js z renderPageFile");
